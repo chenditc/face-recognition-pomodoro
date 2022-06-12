@@ -8,6 +8,8 @@ import './App.css';
 import 'flipclock/dist/flipclock.css';
 
 function ReactFlipClock(props) {
+  // From example: 
+  // https://github.com/objectivehtml/FlipClock/blob/v0.10.8/examples/load-new-clock-face.html
   const flipclockRef = useRef(null);
   const startTime = props.startTime;
 
