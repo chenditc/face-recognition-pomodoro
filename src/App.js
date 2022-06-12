@@ -1,10 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useInterval from 'use-interval'
-import Clock from 'react-clock';
+import FlipClock from 'flipclock';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 
 import './App.css';
+import 'flipclock/dist/flipclock.css';
+
+function ReactFlipClock(props) {
+  const flipclockRef = useRef(null);
+  const startTime = props.startTime;
+
+  useEffect(() => {
+    // Recreate flip clock every time start time changed.
+    while (flipclockRef.current.children.length > 0){
+      flipclockRef.current.removeChild(flipclockRef.current.children[0])
+    }
+
+    // Time input need to be furture time, so that clock will be positive.
+    const initTime = new Date(new Date().getTime() + (new Date() - startTime));
+    new FlipClock(flipclockRef.current, initTime, {
+        face: 'HourCounter',
+      });
+
+  }, [startTime])
+
+  return (
+    <div ref={flipclockRef} />
+  )
+}
 
 function HealthMonitor(props) {
   const detectionInterval = 5;
@@ -21,6 +45,7 @@ function HealthMonitor(props) {
   const alertRestSeconds = 5 * 60;
   const notificationIntervalSeconds = 60;
   const [notificationHistory, setNotificationHistory] = useState({})
+  const tempMissingSeconds = 20;
 
   function sendNotification(message) {
     if (notificationHistory[message] && (
@@ -56,8 +81,13 @@ function HealthMonitor(props) {
     // calculate continue time
     const NewMergedTimeTable = mergedTimeTable.slice()
     const currDetected = (detection !== undefined)
-    if (NewMergedTimeTable.at(-1).detected !== currDetected) {
+    if (NewMergedTimeTable.at(-1).detected !== currDetected && (NewMergedTimeTable.at(-1).timePeriod < tempMissingSeconds)) {
+      // If last section is less than tempMissingSeconds seconds
+      // remove last section so that we have a more continous time range.
+      NewMergedTimeTable.pop()
+    }
 
+    if (NewMergedTimeTable.at(-1).detected !== currDetected) {
       NewMergedTimeTable.push({
         startTime: NewMergedTimeTable.at(-1).endTime,
         endTime: new Date(),
@@ -92,22 +122,24 @@ function HealthMonitor(props) {
     }
   }, 500, true)
 
-  const studySeconds = continueFaceTime;
-  let studyMessage = `您已经持续学习了 ${studySeconds.toFixed(0)} 秒`
-  if (studySeconds > 3600) {
-    const studyTimeInHour = studySeconds / 3600
-    studyMessage = `您已经持续学习了 ${studyTimeInHour.toFixed(2)} 小时`
-  }
-  else if (studySeconds > 60) {
-    const studyMinutes = studySeconds / 60;
-    studyMessage = `您已经持续学习了 ${studyMinutes.toFixed(2)} 分钟`
+  function formatFromSeconds(inputSeconds) {
+    const seconds = Math.floor(inputSeconds % 60);
+    const minutes = Math.floor(inputSeconds / 60) % 24;
+    const hours = Math.floor(inputSeconds / 3600);
+    if (hours > 0) {
+      return `${hours}:${minutes}:${seconds}`
+    }
+    return `${minutes}:${seconds}`
   }
 
+  const counterStartTime = mergedTimeTable.at(-1).startTime
+  const studyMessage = `持续学习了 ${formatFromSeconds(continueFaceTime)}`
   return (
     <div>
       <p> {studyMessage} </p>
-      <p> 您已经持续休息了 {continueRestTime} 秒 </p>
-      <Clock value={new Date()} />
+      <p> 休息了 {formatFromSeconds(continueRestTime)} </p>
+      <ReactFlipClock clockFace='TwelveHourClock' startTime={counterStartTime}/>
+
       <PeriodicFaceDetection
         detectionInterval={detectionInterval}
         onFaceDetectionResult={onFaceDetectionResult}
