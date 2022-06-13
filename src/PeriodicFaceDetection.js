@@ -18,18 +18,41 @@ function PeriodicFaceDetection(props) {
     if (!modelsLoaded) {
       return
     }
+
+    function detectUsingSsdMobilenet() {
+      // Recognize face every X seconds
+      faceapi.detectSingleFace(webcamRef.current.video, new faceapi.SsdMobilenetv1Options(
+        {
+          minConfidence: scoreThreshold
+        }
+      ))
+        .then((detection) => {
+          onFaceDetectionResult(detection);
+          setDetected(detection)
+        }, () => {
+          onFaceDetectionResult(undefined);
+          console.log("detection failed")
+        });
+    }
+
     // Recognize face every X seconds
-    faceapi.detectSingleFace(webcamRef.current.video, new faceapi.SsdMobilenetv1Options(
+    faceapi.detectSingleFace(webcamRef.current.video, new faceapi.TinyFaceDetectorOptions(
       {
-        minConfidence: scoreThreshold
+        inputSize: modelInputSize,
+        scoreThreshold: scoreThreshold
       }
     ))
       .then((detection) => {
-        onFaceDetectionResult(detection);
-        setDetected(detection)
+        if (detection) {
+          console.log("Tiny success")
+          onFaceDetectionResult(detection);
+          setDetected(detection)
+        }
+        else {
+          detectUsingSsdMobilenet();
+        }
       }, () => {
-        onFaceDetectionResult(undefined);
-        console.log("detection failed")
+        detectUsingSsdMobilenet();
       });
   }, detectionInterval * 1000, true)
 
@@ -40,6 +63,7 @@ function PeriodicFaceDetection(props) {
 
       Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL)
       ]).then(() => {
         setModelsLoaded(true)
       });

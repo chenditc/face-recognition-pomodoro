@@ -7,6 +7,7 @@ import PeriodicFaceDetection from './PeriodicFaceDetection';
 
 import './App.css';
 import 'flipclock/dist/flipclock.css';
+import { computeReshapedDimensions } from 'face-api.js/build/commonjs/utils';
 
 function ReactFlipClock(props) {
   // From example: 
@@ -25,7 +26,7 @@ function ReactFlipClock(props) {
       //console.log(flipclockElement.current)
     }
     else {
-      if (startTime !== flipclockElement.current.originalValue) {
+      if (startTime.getMilliseconds() !== flipclockElement.current.originalValue.getMilliseconds()) {
         flipclockElement.current.originalValue = startTime;
         flipclockElement.current.value = new Date();
       }
