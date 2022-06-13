@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import useInterval from 'use-interval'
 import FlipClock from 'flipclock';
+import { Collapse } from 'react-collapse';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 
@@ -11,21 +12,25 @@ function ReactFlipClock(props) {
   // From example: 
   // https://github.com/objectivehtml/FlipClock/blob/v0.10.8/examples/load-new-clock-face.html
   const flipclockRef = useRef(null);
+  const flipclockElement = useRef(null);
   const startTime = props.startTime;
 
   useEffect(() => {
     // Recreate flip clock every time start time changed.
-    while (flipclockRef.current.children.length > 0){
-      flipclockRef.current.removeChild(flipclockRef.current.children[0])
-    }
-
-    // Time input need to be furture time, so that clock will be positive.
-    const initTime = new Date(new Date().getTime() + (new Date() - startTime));
-    new FlipClock(flipclockRef.current, initTime, {
+    if (flipclockElement.current === null) {
+      flipclockElement.current = new FlipClock(flipclockRef.current, startTime, {
         face: 'HourCounter',
+        showLabels: false,
       });
-
-  }, [startTime])
+      //console.log(flipclockElement.current)
+    }
+    else {
+      if (startTime !== flipclockElement.current.originalValue) {
+        flipclockElement.current.originalValue = startTime;
+        flipclockElement.current.value = new Date();
+      }
+    }
+  })
 
   return (
     <div ref={flipclockRef} />
@@ -47,7 +52,7 @@ function HealthMonitor(props) {
   const alertRestSeconds = 5 * 60;
   const notificationIntervalSeconds = 60;
   const [notificationHistory, setNotificationHistory] = useState({})
-  const tempMissingSeconds = 20;
+  const tempMissingSeconds = 30;
 
   function sendNotification(message) {
     if (notificationHistory[message] && (
@@ -83,7 +88,9 @@ function HealthMonitor(props) {
     // calculate continue time
     const NewMergedTimeTable = mergedTimeTable.slice()
     const currDetected = (detection !== undefined)
-    if (NewMergedTimeTable.at(-1).detected !== currDetected && (NewMergedTimeTable.at(-1).timePeriod < tempMissingSeconds)) {
+    if (NewMergedTimeTable.at(-1).detected !== currDetected
+      && (NewMergedTimeTable.at(-1).timePeriod < tempMissingSeconds)
+      && (NewMergedTimeTable.length > 1)) {
       // If last section is less than tempMissingSeconds seconds
       // remove last section so that we have a more continous time range.
       NewMergedTimeTable.pop()
@@ -111,17 +118,19 @@ function HealthMonitor(props) {
     // Update continue face time and continue rest time
     const lastTimeSlot = mergedTimeTable.at(-1)
     lastTimeSlot.timePeriod = (new Date() - lastTimeSlot.startTime) / 1000
-    lastTimeSlot.detected ?
-      setContinueFaceTime(lastTimeSlot.timePeriod) :
-      setContinueRestTime(lastTimeSlot.timePeriod);
+    if (lastTimeSlot.detected) {
+      setContinueFaceTime(lastTimeSlot.timePeriod)
+      if (lastTimeSlot.timePeriod > alertStudySeconds) {
+        sendNotification("该休息啦")
+      }
+    }
+    else {
+      setContinueRestTime(lastTimeSlot.timePeriod)
+      if (lastTimeSlot.timePeriod > alertRestSeconds) {
+        sendNotification("休息够啦")
+      }
+    }
 
-    if (continueFaceTime > alertStudySeconds && lastTimeSlot.detected) {
-      // Alert need to rest
-      sendNotification("该休息啦")
-    }
-    if (continueRestTime > alertRestSeconds && !lastTimeSlot.detected) {
-      sendNotification("休息够啦")
-    }
   }, 500, true)
 
   function formatFromSeconds(inputSeconds) {
@@ -140,12 +149,14 @@ function HealthMonitor(props) {
     <div>
       <p> {studyMessage} </p>
       <p> 休息了 {formatFromSeconds(continueRestTime)} </p>
-      <ReactFlipClock clockFace='TwelveHourClock' startTime={counterStartTime}/>
+      <ReactFlipClock clockFace='TwelveHourClock' startTime={counterStartTime} />
+      <Collapse isOpened={true}>
 
-      <PeriodicFaceDetection
-        detectionInterval={detectionInterval}
-        onFaceDetectionResult={onFaceDetectionResult}
-      />
+        <PeriodicFaceDetection
+          detectionInterval={detectionInterval}
+          onFaceDetectionResult={onFaceDetectionResult}
+        />
+      </Collapse>
     </div>
   )
 }

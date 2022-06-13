@@ -7,23 +7,29 @@ import useInterval from 'use-interval'
 function PeriodicFaceDetection(props) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const webcamRef = useRef(null);
-  const [detectedFace, setDetectedFace] = useState(null);
-  const detectionInterval = props.detectionInterval
+  const [detected, setDetected] = useState(false)
   const [cameraSupported] = useState('mediaDevices' in navigator);
   const onFaceDetectionResult = props.onFaceDetectionResult
+  const detectionInterval = props.detectionInterval
+  const modelInputSize = 128;
+  const scoreThreshold = 0.1
 
   useInterval(() => {
     if (!modelsLoaded) {
       return
     }
     // Recognize face every X seconds
-    faceapi.detectSingleFace(webcamRef.current.video, new faceapi.TinyFaceDetectorOptions())
+    faceapi.detectSingleFace(webcamRef.current.video, new faceapi.SsdMobilenetv1Options(
+      {
+        minConfidence: scoreThreshold
+      }
+    ))
       .then((detection) => {
         onFaceDetectionResult(detection);
-        setDetectedFace(detection);
+        setDetected(detection)
       }, () => {
+        onFaceDetectionResult(undefined);
         console.log("detection failed")
-        setDetectedFace(null);
       });
   }, detectionInterval * 1000, true)
 
@@ -44,14 +50,14 @@ function PeriodicFaceDetection(props) {
   return (
     <div>
       <p> Camera Supported: {cameraSupported.toString()} </p>
-      <p> {detectedFace ? `Detected face` : `No face detected`} </p>
+      <p> {detected ? `Detected face` : `No face detected`} </p>
       <p> {modelsLoaded ? "Model is loaded" : "Loading model"}</p>
-        <Webcam
-          audio={false}
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          videoConstraints={{ facingMode: "user" }}
-        />
+      <Webcam
+        audio={false}
+        ref={webcamRef}
+        screenshotFormat="image/jpeg"
+        videoConstraints={{ facingMode: "user" }}
+      />
     </div>
   )
 }
