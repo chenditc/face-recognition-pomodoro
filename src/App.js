@@ -30,6 +30,11 @@ function ReactFlipClock(props) {
         flipclockElement.current.originalValue = startTime;
         flipclockElement.current.value = new Date();
       }
+      // Some times the clock is out of sync, we need to manually sync them
+      if (Math.abs(new Date() - flipclockElement.current.value.value) > 1000) {
+        flipclockElement.current.originalValue = startTime;
+        flipclockElement.current.value = new Date();
+      }
     }
   })
 
