@@ -12,7 +12,8 @@ function PeriodicFaceDetection(props) {
   const onFaceDetectionResult = props.onFaceDetectionResult
   const detectionInterval = props.detectionInterval
   const modelInputSize = 128;
-  const scoreThreshold = 0.1
+  const scoreThreshold = 0.25
+//  const [faceDescriptor, setFaceDescriptor] = useState(null)
 
   useInterval(() => {
     if (!modelsLoaded) {
@@ -25,8 +26,22 @@ function PeriodicFaceDetection(props) {
         {
           minConfidence: scoreThreshold
         }
-      ))
+      )).withFaceLandmarks(true).withFaceDescriptor()
         .then((detection) => {
+          if (detection) {
+            console.log("SSD success")
+            /*
+            setFaceDescriptor(detection.descriptor)
+            if (faceDescriptor !== null) {
+              const dist = faceapi.euclideanDistance(faceDescriptor, detection.descriptor)
+              console.log(dist) // 10
+            }
+            */
+          }
+          else {
+            console.log("All failed")
+          }
+          
           onFaceDetectionResult(detection);
           setDetected(detection)
         }, () => {
@@ -41,12 +56,19 @@ function PeriodicFaceDetection(props) {
         inputSize: modelInputSize,
         scoreThreshold: scoreThreshold
       }
-    ))
+    )).withFaceLandmarks(true).withFaceDescriptor()
       .then((detection) => {
         if (detection) {
           console.log("Tiny success")
           onFaceDetectionResult(detection);
           setDetected(detection)
+          /*
+          setFaceDescriptor(detection.descriptor)
+          if (faceDescriptor !== null) {
+            const dist = faceapi.euclideanDistance(faceDescriptor, detection.descriptor)
+            console.log(dist) // 10
+          }
+          */
         }
         else {
           detectUsingSsdMobilenet();
@@ -63,7 +85,9 @@ function PeriodicFaceDetection(props) {
 
       Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL)
+        faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+//        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL), // For face landmark
+//        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)  // For face recognition
       ]).then(() => {
         setModelsLoaded(true)
       });

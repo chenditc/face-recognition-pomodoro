@@ -136,7 +136,7 @@ function HealthMonitor(props) {
 
   function formatFromSeconds(inputSeconds) {
     const seconds = Math.floor(inputSeconds % 60);
-    const minutes = Math.floor(inputSeconds / 60) % 24;
+    const minutes = Math.floor(inputSeconds / 60) % 60;
     const hours = Math.floor(inputSeconds / 3600);
     if (hours > 0) {
       return `${hours}:${minutes}:${seconds}`
