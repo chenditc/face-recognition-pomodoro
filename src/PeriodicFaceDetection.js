@@ -2,7 +2,22 @@ import { useRef, useEffect, useState } from 'react';
 import Webcam from "react-webcam";
 import * as faceapi from 'face-api.js';
 import useInterval from 'use-interval'
+import { css } from '@emotion/css'
+import CheckSquareFilled from '@ant-design/icons/CheckSquareFilled';
+import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
 
+function StatusMessage(props) {
+  return (
+    <div>
+      <p> {props.msg + " "}
+        {props.status ?
+          <CheckSquareFilled style={{color:"#1faa00"}} /> :
+          <CloseSquareOutlined style={{color:"#a30000"}} />
+        }
+      </p>
+    </div>
+  )
+}
 
 function PeriodicFaceDetection(props) {
   const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -96,10 +111,25 @@ function PeriodicFaceDetection(props) {
   }, []);
 
   return (
-    <div>
-      <p> Camera Supported: {cameraSupported.toString()} </p>
-      <p> {detected ? `Detected face` : `No face detected`} </p>
-      <p> {modelsLoaded ? "Model is loaded" : "Loading model"}</p>
+    <div className={
+      css`
+        padding: 5px;
+        display: flex;
+      `
+    }>
+      <div className={
+        css`
+          padding: 5px;
+          flex-direction: column;
+          justify-content: space-around;
+          align-content: space-around;
+          height: 100px;
+        `
+      }>
+        <StatusMessage msg="Camera Supported:" status={cameraSupported} />
+        <StatusMessage msg="Face Detected:" status={detected} />
+        <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
+      </div>
       <Webcam
         audio={false}
         ref={webcamRef}
