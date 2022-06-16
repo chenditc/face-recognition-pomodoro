@@ -1,11 +1,14 @@
 import { useRef, useEffect, useState } from 'react';
 import Webcam from "react-webcam";
-import { Collapse } from 'react-collapse';
 import * as faceapi from 'face-api.js';
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import CheckSquareFilled from '@ant-design/icons/CheckSquareFilled';
 import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
+
+import { Button } from 'antd';
+import { Collapse } from 'react-collapse';
+
 
 function StatusMessage(props) {
   return (
@@ -13,13 +16,13 @@ function StatusMessage(props) {
       <p className={
         css`
         text-align: left;
+        padding: 10px;
         margin: 0 auto;
-        boarder: 1px
         `
       }> {props.msg + " "}
         {props.status ?
-          <CheckSquareFilled style={{color:"#1faa00"}} /> :
-          <CloseSquareOutlined style={{color:"#a30000"}} />
+          <CheckSquareFilled style={{ color: "#1faa00" }} /> :
+          <CloseSquareOutlined style={{ color: "#a30000" }} />
         }
       </p>
     </div>
@@ -36,6 +39,7 @@ function PeriodicFaceDetection(props) {
   const modelInputSize = 128;
   const scoreThreshold = 0.25
   const [cameraHidden, setCameraHidden] = useState(null);
+  const [statusHidden, setStatusHidden] = useState(true);
 
   useInterval(() => {
     if (!modelsLoaded) {
@@ -58,7 +62,7 @@ function PeriodicFaceDetection(props) {
           minConfidence: scoreThreshold
         }
       ))
-      if (ssdDetection != undefined) {
+      if (ssdDetection !== undefined) {
         console.log("SSD model detection success")
       }
       else {
@@ -95,6 +99,7 @@ function PeriodicFaceDetection(props) {
 
   const cameraHeight = cameraHidden ? "1px" : "100%"
 
+
   return (
     <div className={
       css`
@@ -103,22 +108,35 @@ function PeriodicFaceDetection(props) {
         flex-direction: column;
       `
     }>
-      <div>
       <div className={
         css`
-          padding: 5px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-around;
-          align-content: space-around;
-          height: 100%;
+          margin: 10px 0
         `
       }>
-        <StatusMessage msg="Camera Supported:" status={cameraSupported} />
-        <StatusMessage msg="Face Detected:" status={detected} />
-        <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
+        <Button type="primary" block onClick={() => { setStatusHidden(statusHidden => !statusHidden) }}>
+          {
+            statusHidden ? "Show detail status" : "Hide detail status"
+          }
+        </Button>
+        <Collapse isOpened={!statusHidden}>
+          <div className={
+            css`
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: space-between;
+            `
+          }>
+            <StatusMessage msg="Camera Supported:" status={cameraSupported} />
+            <StatusMessage msg="Face Detected:" status={detected} />
+            <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
+          </div>
+        </Collapse>
       </div>
-      </div>
+      <Button type="primary" block onClick={() => { setCameraHidden(cameraHidden => !cameraHidden) }}>
+          {
+            cameraHidden ? "Show Camera" : "Hide Camera"
+          }
+        </Button>
       <div className={
         css`
           height: ${cameraHeight};
@@ -126,12 +144,12 @@ function PeriodicFaceDetection(props) {
           overflow: hidden;
         `
       }>
-      <Webcam
-        audio={false}
-        ref={webcamRef}
-        screenshotFormat="image/jpeg"
-        videoConstraints={{ facingMode: "user" }}
-      />
+        <Webcam
+          audio={false}
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          videoConstraints={{ facingMode: "user" }}
+        />
       </div>
     </div>
   )
