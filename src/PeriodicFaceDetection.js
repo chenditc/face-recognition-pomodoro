@@ -9,7 +9,12 @@ import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
 function StatusMessage(props) {
   return (
     <div>
-      <p> {props.msg + " "}
+      <p className={
+        css`
+        text-align: left;
+        margin: 0 auto;
+        `
+      }> {props.msg + " "}
         {props.status ?
           <CheckSquareFilled style={{color:"#1faa00"}} /> :
           <CloseSquareOutlined style={{color:"#a30000"}} />
@@ -115,20 +120,24 @@ function PeriodicFaceDetection(props) {
       css`
         padding: 5px;
         display: flex;
+        flex-direction: column;
       `
     }>
+      <div>
       <div className={
         css`
           padding: 5px;
+          display: flex;
           flex-direction: column;
           justify-content: space-around;
           align-content: space-around;
-          height: 100px;
+          height: 100%;
         `
       }>
         <StatusMessage msg="Camera Supported:" status={cameraSupported} />
         <StatusMessage msg="Face Detected:" status={detected} />
         <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
+      </div>
       </div>
       <Webcam
         audio={false}

@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import useInterval from 'use-interval'
 import FlipClock from 'flipclock';
 import { Collapse } from 'react-collapse';
+import { css } from '@emotion/css'
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 
-import './App.css';
 import 'flipclock/dist/flipclock.css';
+import './flipclock.css'
+
 import { computeReshapedDimensions } from 'face-api.js/build/commonjs/utils';
 
 function ReactFlipClock(props) {
@@ -35,7 +37,9 @@ function ReactFlipClock(props) {
         flipclockElement.current.originalValue = startTime;
         flipclockElement.current.value = new Date();
       }
+      
     }
+    flipclockElement.current.stop()
   })
 
   return (
@@ -139,30 +143,21 @@ function HealthMonitor(props) {
 
   }, 500, true)
 
-  function formatFromSeconds(inputSeconds) {
-    const seconds = Math.floor(inputSeconds % 60);
-    const minutes = Math.floor(inputSeconds / 60) % 60;
-    const hours = Math.floor(inputSeconds / 3600);
-    if (hours > 0) {
-      return `${hours}:${minutes}:${seconds}`
-    }
-    return `${minutes}:${seconds}`
-  }
-
-  const counterStartTime = mergedTimeTable.at(-1).startTime
-  const studyMessage = `持续学习了 ${formatFromSeconds(continueFaceTime)}`
+  const statusMessage = mergedTimeTable.at(-1).detected? "WORKING" : "REST";
+  
   return (
     <div>
-      <p> {studyMessage} </p>
-      <p> 休息了 {formatFromSeconds(continueRestTime)} </p>
-      <ReactFlipClock clockFace='TwelveHourClock' startTime={counterStartTime} />
-      <Collapse isOpened={true}>
-
+      <p className={
+        css`
+          font-size: 20vw;
+          margin: 0 auto;
+        `
+      }> {statusMessage} </p>
+        <ReactFlipClock clockFace='TwelveHourClock' startTime={mergedTimeTable.at(-1).startTime} />
         <PeriodicFaceDetection
           detectionInterval={detectionInterval}
           onFaceDetectionResult={onFaceDetectionResult}
         />
-      </Collapse>
     </div>
   )
 }
