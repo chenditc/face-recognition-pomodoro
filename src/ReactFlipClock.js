@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { css } from '@emotion/css'
 
 import FlipClock from 'flipclock';
 import 'flipclock/dist/flipclock.css';
