@@ -35,62 +35,45 @@ function PeriodicFaceDetection(props) {
   const detectionInterval = props.detectionInterval
   const modelInputSize = 128;
   const scoreThreshold = 0.25
-  //  const [faceDescriptor, setFaceDescriptor] = useState(null)
+  const [cameraHidden, setCameraHidden] = useState(null);
 
   useInterval(() => {
     if (!modelsLoaded) {
       return
     }
 
-    function detectUsingSsdMobilenet() {
-      // Recognize face every X seconds
-      faceapi.detectSingleFace(webcamRef.current.video, new faceapi.SsdMobilenetv1Options(
+    async function detectUsingModel() {
+      const tinyDetection = await faceapi.detectSingleFace(webcamRef.current.video, new faceapi.TinyFaceDetectorOptions(
+        {
+          inputSize: modelInputSize,
+          scoreThreshold: scoreThreshold
+        }
+      ))
+      if (tinyDetection !== undefined) {
+        console.log("Tiny model detection success")
+        return tinyDetection;
+      }
+      const ssdDetection = await faceapi.detectSingleFace(webcamRef.current.video, new faceapi.SsdMobilenetv1Options(
         {
           minConfidence: scoreThreshold
         }
       ))
-        .then((detection) => {
-          if (detection) {
-            console.log("SSD success")
-          }
-          else {
-            console.log("All failed")
-          }
-
-          onFaceDetectionResult(detection);
-          setDetected(detection)
-        }, () => {
-          onFaceDetectionResult(undefined);
-          console.log("detection failed")
-        });
+      if (ssdDetection != undefined) {
+        console.log("SSD model detection success")
+      }
+      else {
+        console.log("All model failed")
+      }
+      return ssdDetection
     }
 
-    // Recognize face every X seconds
-    faceapi.detectSingleFace(webcamRef.current.video, new faceapi.TinyFaceDetectorOptions(
-      {
-        inputSize: modelInputSize,
-        scoreThreshold: scoreThreshold
+    detectUsingModel().then(
+      (detectionResult) => {
+        onFaceDetectionResult(detectionResult);
+        setDetected(detectionResult)
       }
-    ))
-      .then((detection) => {
-        if (detection) {
-          console.log("Tiny success")
-          onFaceDetectionResult(detection);
-          setDetected(detection)
-          /*
-          setFaceDescriptor(detection.descriptor)
-          if (faceDescriptor !== null) {
-            const dist = faceapi.euclideanDistance(faceDescriptor, detection.descriptor)
-            console.log(dist) // 10
-          }
-          */
-        }
-        else {
-          detectUsingSsdMobilenet();
-        }
-      }, () => {
-        detectUsingSsdMobilenet();
-      });
+    )
+
   }, detectionInterval * 1000, true)
 
   // Load ML models 
@@ -109,6 +92,8 @@ function PeriodicFaceDetection(props) {
     }
     loadModels();
   }, []);
+
+  const cameraHeight = cameraHidden ? "1px" : "100%"
 
   return (
     <div className={
@@ -134,12 +119,20 @@ function PeriodicFaceDetection(props) {
         <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
       </div>
       </div>
+      <div className={
+        css`
+          height: ${cameraHeight};
+          width: ${cameraHeight};
+          overflow: hidden;
+        `
+      }>
       <Webcam
         audio={false}
         ref={webcamRef}
         screenshotFormat="image/jpeg"
         videoConstraints={{ facingMode: "user" }}
       />
+      </div>
     </div>
   )
 }
