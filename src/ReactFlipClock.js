@@ -13,24 +13,25 @@ function ReactFlipClock(props) {
   const startTime = props.startTime;
 
   useEffect(() => {
-    // Recreate flip clock every time start time changed.
     if (flipclockElement.current === null) {
-      flipclockElement.current = new FlipClock(flipclockRef.current, startTime, {
+      flipclockElement.current = new FlipClock(flipclockRef.current, new Date(startTime), {
         face: 'HourCounter',
         showLabels: false,
       });
+      flipclockElement.current.originalValue = new Date(startTime);
+      flipclockElement.current.value = new Date();
+      flipclockElement.current.start()
       //console.log(flipclockElement.current)
     }
-    else {
-      if (startTime.getMilliseconds() !== flipclockElement.current.originalValue.getMilliseconds()) {
-        flipclockElement.current.originalValue = startTime;
-        flipclockElement.current.value = new Date();
-      }
+
+    if (
+      // Start time changed
+      (startTime !== flipclockElement.current.originalValue.toJSON()) ||
       // Some times the clock is out of sync, we need to manually sync them
-      if (Math.abs(new Date() - flipclockElement.current.value.value) > 1000) {
-        flipclockElement.current.originalValue = startTime;
-        flipclockElement.current.value = new Date();
-      }
+      (Math.abs(new Date() - flipclockElement.current.value.value) > 1000)
+    ) {
+      flipclockElement.current.originalValue = new Date(startTime);
+      flipclockElement.current.value = new Date();
     }
   })
 

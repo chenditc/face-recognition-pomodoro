@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
+import { useLocalStorageState } from 'ahooks';
+import { Button } from 'antd';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
@@ -8,12 +10,23 @@ import ReactFlipClock from './ReactFlipClock.js'
 function HealthMonitor(props) {
   const detectionInterval = 5;
   const [continousTimeTable, setContinousTimeTable] = useState([])
+  const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
+    defaultValue: [{
+      startTime: new Date().toJSON(),
+      endTime: new Date().toJSON(),
+      detected: true,
+      timePeriod: 0,
+      pinnedSession: false
+    }],
+  });
+  /*
   const [mergedTimeTable, setMergedTimeTable] = useState([{
     startTime: new Date(),
     endTime: new Date(),
     detected: true,
     timePeriod: 0
   }])
+  */
   const alertStudySeconds = 25 * 60;
   const alertRestSeconds = 5 * 60;
   const notificationIntervalSeconds = 60;
@@ -44,6 +57,18 @@ function HealthMonitor(props) {
 
   }
 
+  function addNewTimeTableSession(pinnedSession) {
+    const NewMergedTimeTable = mergedTimeTable.slice()
+    NewMergedTimeTable.push({
+      startTime: NewMergedTimeTable.at(-1).endTime,
+      endTime: new Date().toJSON(),
+      detected: true,
+      timePeriod: 0,
+      pinnedSession: pinnedSession
+    })
+    setMergedTimeTable(NewMergedTimeTable);
+  }
+
   function onFaceDetectionResult(detection) {
     // Add new time slow with detection result
     // TODO: use the detection info to get box area range for smarter detection
@@ -56,7 +81,8 @@ function HealthMonitor(props) {
     const currDetected = (detection !== undefined)
     if (NewMergedTimeTable.at(-1).detected !== currDetected
       && (NewMergedTimeTable.at(-1).timePeriod < tempMissingSeconds)
-      && (NewMergedTimeTable.length > 1)) {
+      && (NewMergedTimeTable.length > 1)
+      && (!NewMergedTimeTable.at(-1).pinnedSession)) {
       // If last section is less than tempMissingSeconds seconds
       // remove last section so that we have a more continous time range.
       NewMergedTimeTable.pop()
@@ -65,14 +91,15 @@ function HealthMonitor(props) {
     if (NewMergedTimeTable.at(-1).detected !== currDetected) {
       NewMergedTimeTable.push({
         startTime: NewMergedTimeTable.at(-1).endTime,
-        endTime: new Date(),
+        endTime: new Date().toJSON(),
         detected: currDetected,
-        timePeriod: 0
+        timePeriod: 0,
+        pinnedSession: true
       })
     }
     else {
-      NewMergedTimeTable.at(-1).endTime = new Date()
-      NewMergedTimeTable.at(-1).timePeriod = (new Date() - NewMergedTimeTable.at(-1).startTime) / 1000
+      NewMergedTimeTable.at(-1).endTime = new Date().toJSON()
+      NewMergedTimeTable.at(-1).timePeriod = (new Date() - new Date(NewMergedTimeTable.at(-1).startTime)) / 1000
     }
 
     setMergedTimeTable(NewMergedTimeTable);
@@ -83,7 +110,7 @@ function HealthMonitor(props) {
 
     // Update continue face time and continue rest time
     const lastTimeSlot = mergedTimeTable.at(-1)
-    lastTimeSlot.timePeriod = (new Date() - lastTimeSlot.startTime) / 1000
+    lastTimeSlot.timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (lastTimeSlot.timePeriod > alertStudySeconds)) {
       sendNotification("该休息啦")
     }
@@ -105,6 +132,9 @@ function HealthMonitor(props) {
         `
       }> {statusMessage} </p>
       <ReactFlipClock clockFace='TwelveHourClock' startTime={mergedTimeTable.at(-1).startTime} />
+      <Button type="primary" block onClick={() => addNewTimeTableSession(true)}>
+         New Pomodoro Session
+      </Button>
       <PeriodicFaceDetection
         detectionInterval={detectionInterval}
         onFaceDetectionResult={onFaceDetectionResult}
