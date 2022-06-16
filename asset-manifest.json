@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.css": "/face-recognition-pomodoro/static/css/main.ff2d9199.css",
+    "main.css": "/face-recognition-pomodoro/static/css/main.efd051fd.css",
     "main.js": "/face-recognition-pomodoro/static/js/main.05f6146e.js",
     "index.html": "/face-recognition-pomodoro/index.html"
   },
   "entrypoints": [
-    "static/css/main.ff2d9199.css",
+    "static/css/main.efd051fd.css",
     "static/js/main.05f6146e.js"
   ]
 }
