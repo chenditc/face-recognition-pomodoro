@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import Webcam from "react-webcam";
+import { Collapse } from 'react-collapse';
 import * as faceapi from 'face-api.js';
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
@@ -13,6 +14,7 @@ function StatusMessage(props) {
         css`
         text-align: left;
         margin: 0 auto;
+        boarder: 1px
         `
       }> {props.msg + " "}
         {props.status ?
@@ -50,13 +52,6 @@ function PeriodicFaceDetection(props) {
         .then((detection) => {
           if (detection) {
             console.log("SSD success")
-            /*
-            setFaceDescriptor(detection.descriptor)
-            if (faceDescriptor !== null) {
-              const dist = faceapi.euclideanDistance(faceDescriptor, detection.descriptor)
-              console.log(dist) // 10
-            }
-            */
           }
           else {
             console.log("All failed")
