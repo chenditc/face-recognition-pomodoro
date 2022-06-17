@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
+import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import { useLocalStorageState } from 'ahooks';
 import { Button } from 'antd';
 import useSound from 'use-sound';
@@ -8,6 +9,7 @@ import useSound from 'use-sound';
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
 import PomodoroList from './PomodoroList';
+import IconOverTextButton from './IconOverTextButton';
 
 function HealthMonitor(props) {
   const detectionInterval = 5;
@@ -123,14 +125,23 @@ function HealthMonitor(props) {
       }> {statusMessage} </p>
 
       <ReactFlipClock clockFace='TwelveHourClock' startTime={mergedTimeTable.at(-1).startTime} />
-      <Button block onClick={() => addNewTimeTableSession(true)}>
-        New Pomodoro Session
-      </Button>
 
-      <PeriodicFaceDetection
-        detectionInterval={detectionInterval}
-        onFaceDetectionResult={onFaceDetectionResult}
-      />
+      <div className={
+        css`
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-around;
+        `
+      }>
+        <IconOverTextButton
+          onClick={() => addNewTimeTableSession(true)}
+          text="New Session"
+          icon={PlayCircleOutlined} />
+        <PeriodicFaceDetection
+          detectionInterval={detectionInterval}
+          onFaceDetectionResult={onFaceDetectionResult}
+        />
+      </div>
       <PomodoroList mergedTimeTable={mergedTimeTable} />
     </div>
   )

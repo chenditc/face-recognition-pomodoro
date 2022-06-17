@@ -5,10 +5,14 @@ import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import CheckSquareFilled from '@ant-design/icons/CheckSquareFilled';
 import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
+import SmileOutlined from '@ant-design/icons/SmileOutlined';
+import CameraOutlined from '@ant-design/icons/CameraOutlined';
 
 import { Button } from 'antd';
+import { Popover } from 'antd';
 import { Collapse } from 'react-collapse';
 
+import IconOverTextButton from './IconOverTextButton';
 
 function StatusMessage(props) {
   return (
@@ -25,6 +29,22 @@ function StatusMessage(props) {
           <CloseSquareOutlined style={{ color: "#a30000" }} />
         }
       </p>
+    </div>
+  )
+}
+
+function GetFaceDetectionStatus(cameraSupported, faceDetected, modelsLoaded) {
+  return (
+    <div className={
+      css`
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    `
+    }>
+      <StatusMessage msg="Camera Supported:" status={cameraSupported} />
+      <StatusMessage msg="Face Detected:" status={faceDetected} />
+      <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
     </div>
   )
 }
@@ -99,44 +119,22 @@ function PeriodicFaceDetection(props) {
 
   const cameraHeight = cameraHidden ? "1px" : "100%"
 
-
   return (
-    <div className={
-      css`
-        display: flex;
-        flex-direction: column;
-        margin-top: 10px;
-      `
-    }>
-      <div className={
-        css`
-          margin-bottom: 10px
-        `
-      }>
-        <Button block onClick={() => { setStatusHidden(statusHidden => !statusHidden) }}>
-          {
-            statusHidden ? "Show detail status" : "Hide detail status"
-          }
-        </Button>
-        <Collapse isOpened={!statusHidden}>
-          <div className={
-            css`
-              display: flex;
-              flex-wrap: wrap;
-              justify-content: space-between;
-            `
-          }>
-            <StatusMessage msg="Camera Supported:" status={cameraSupported} />
-            <StatusMessage msg="Face Detected:" status={detected} />
-            <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
-          </div>
-        </Collapse>
-      </div>
-      <Button block onClick={() => { setCameraHidden(cameraHidden => !cameraHidden) }}>
-          {
-            cameraHidden ? "Show Camera" : "Hide Camera"
-          }
-        </Button>
+    <>
+      <Popover
+        content={GetFaceDetectionStatus(cameraSupported, detected, modelsLoaded)}
+        title="Face Detection Status" trigger="hover">
+        <IconOverTextButton icon={SmileOutlined} text="Enable Auto Detection" />
+        <span />
+      </Popover>
+      <IconOverTextButton
+        icon={CameraOutlined}
+        onClick={() => { setCameraHidden(cameraHidden => !cameraHidden) }}
+        text={cameraHidden ? "Show Camera" : "Hide Camera"} />
+      <div className={css`
+      display: block; 
+      width:100%;
+      `}>
       <div className={
         css`
           height: ${cameraHeight};
@@ -154,7 +152,8 @@ function PeriodicFaceDetection(props) {
           videoConstraints={{ facingMode: "user" }}
         />
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

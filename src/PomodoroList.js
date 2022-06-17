@@ -16,7 +16,6 @@ function PomodoroCard(props) {
     }
     if (roundSeconds < 3600) {
       const minutes = Math.floor(roundSeconds / 60);
-      const secondsResidual = roundSeconds % 60;
       return `${minutes}m`
     }
     const minutes = Math.floor(roundSeconds / 60);
@@ -38,13 +37,13 @@ function PomodoroCard(props) {
           css`
         border-radius: 50%;
         background: #b0003a;
-        width: 4em;
-        height: 4em;
+        width: 3em;
+        height: 3em;
         text-align: center;
         vertical-align: middle;
         display: inline-block;
-        line-height: 4em;
-        font-size: 2em;
+        line-height: 3em;
+        font-size: 1.5em;
         color: white;
         font-weight: bold;
       `
@@ -61,7 +60,7 @@ function PomodoroCard(props) {
         }>
         <p className={
           css`
-            font-size: 2em;
+            font-size: 1.5em;
             font-weight: bold;
             margin: 0;
           `
