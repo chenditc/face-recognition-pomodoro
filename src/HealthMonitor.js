@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
@@ -35,9 +35,12 @@ function HealthMonitor(props) {
       if (new Date() - new Date(storedTable.at(-1).endTime) > alertStudySeconds * 1000) {
         storedTable.push(getDefaultTimeSlot(true, true))
       }
-      return storedTable
+      // Keep only last 100 session for now
+      return storedTable.slice(-100)
     }
   });
+
+  const lastTimeSlot = mergedTimeTable.at(-1)
 
   const notificationIntervalSeconds = 60;
   const [notificationHistory, setNotificationHistory] = useState({})
@@ -45,17 +48,26 @@ function HealthMonitor(props) {
 
   const tempMissingSeconds = 30;
 
+  const isSupported = () =>
+    'Notification' in window &&
+    'serviceWorker' in navigator &&
+    'PushManager' in window
+
+  useEffect(() => {
+    if (!isSupported) alert("This browser does not support desktop notification");
+  }, [])
+
   function sendNotification(message) {
+    if (!isSupported) {
+      return;
+    }
+
     if (notificationHistory[message] && (
       (new Date() - notificationHistory[message]) < (notificationIntervalSeconds * 1000))) {
       // Only send notification every notificationIntervalSeconds
       return;
     }
 
-    if (!("Notification" in window)) {
-      alert("This browser does not support desktop notification");
-      return;
-    }
     // Let's check whether notification permissions have already been granted
     if (Notification.permission !== "granted") {
       alert("Please grant notification permission first.")
@@ -103,7 +115,6 @@ function HealthMonitor(props) {
     Notification.requestPermission()
 
     // Update continue face time and continue rest time
-    const lastTimeSlot = mergedTimeTable.at(-1)
     lastTimeSlot.timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (lastTimeSlot.timePeriod > alertStudySeconds)) {
       sendNotification("该休息啦")
@@ -114,7 +125,7 @@ function HealthMonitor(props) {
     }
   }, 500, true)
 
-  const statusMessage = mergedTimeTable.at(-1).detected ? "WORKING" : "REST";
+  const statusMessage = lastTimeSlot.detected ? "WORKING" : "REST";
 
   return (
     <div className={css`margin: 0 15px;`}>
@@ -126,7 +137,7 @@ function HealthMonitor(props) {
         `
       }> {statusMessage} </p>
 
-      <ReactFlipClock clockFace='TwelveHourClock' startTime={mergedTimeTable.at(-1).startTime} />
+      <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
 
       <div className={
         css`

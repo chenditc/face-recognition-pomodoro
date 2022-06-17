@@ -63,13 +63,8 @@ function PeriodicFaceDetection(props) {
 
   // Detect face every n seconds
   useInterval(() => {
-    if (!enableDetection) {
-      return;
-    }
-
-    if (!modelsLoaded) {
-      return
-    }
+    if (!enableDetection) return;
+    if (!modelsLoaded) return;
 
     async function detectUsingModel() {
       const tinyDetection = await faceapi.detectSingleFace(webcamRef.current.video, new faceapi.TinyFaceDetectorOptions(
@@ -79,7 +74,7 @@ function PeriodicFaceDetection(props) {
         }
       ))
       if (tinyDetection !== undefined) {
-        console.log("Tiny model detection success")
+        tinyDetection.name = "Tiny"
         return tinyDetection;
       }
       const ssdDetection = await faceapi.detectSingleFace(webcamRef.current.video, new faceapi.SsdMobilenetv1Options(
@@ -87,12 +82,7 @@ function PeriodicFaceDetection(props) {
           minConfidence: scoreThreshold
         }
       ))
-      if (ssdDetection !== undefined) {
-        console.log("SSD model detection success")
-      }
-      else {
-        console.log("All model failed")
-      }
+      if (ssdDetection !== undefined) ssdDetection.name = "SSD"
       return ssdDetection
     }
 
