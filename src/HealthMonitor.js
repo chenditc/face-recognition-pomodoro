@@ -4,6 +4,7 @@ import { css } from '@emotion/css'
 import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import { useLocalStorageState } from 'ahooks';
 import useSound from 'use-sound';
+import { notification } from 'antd';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
@@ -56,36 +57,33 @@ function HealthMonitor(props) {
     'PushManager' in window;
     setWebNotificationSupported(isSupported)
     if (!isSupported) {
-      alert("This browser does not support desktop notification");
+      console.log("This browser does not support desktop notification")
       return;
     }
     Notification.requestPermission()
   }, [])
 
   function sendNotification(message) {
-    // TODO: Use in page notification if not supported
-    if (!webNotificationSupported) {
-      return;
-    }
-
     if (notificationHistory[message] && (
       (new Date() - notificationHistory[message]) < (notificationIntervalSeconds * 1000))) {
       // Only send notification every notificationIntervalSeconds
       return;
     }
 
-    // Let's check whether notification permissions have already been granted
-    if (Notification.permission !== "granted") {
-      alert("Please grant notification permission first.")
-      return;
-    }
-
     // If it's okay let's create a notification
     play();
-    new Notification(message);
+    if (webNotificationSupported && Notification.permission === "granted") {
+      new Notification(message);
+    }
+    else {
+      notification.open({
+        message: message,
+        duration: 3,
+      });
+    }
+    
     notificationHistory[message] = new Date()
     setNotificationHistory(notificationHistory);
-    console.log(message)
   }
 
   function addNewTimeTableSession(pinnedSession) {
