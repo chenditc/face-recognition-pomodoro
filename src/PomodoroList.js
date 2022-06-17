@@ -2,27 +2,28 @@ import { useState } from 'react';
 import { Card } from 'antd';
 import { Timeline } from 'antd';
 import { Checkbox } from 'antd';
-import { ClockCircleOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, SmileOutlined } from '@ant-design/icons';
 
 import { css } from '@emotion/css'
+
+function formatSeconds(seconds) {
+  const roundSeconds = Math.floor(seconds)
+  if (roundSeconds < 60) {
+    return `${roundSeconds}s`
+  }
+  if (roundSeconds < 3600) {
+    const minutes = Math.floor(roundSeconds / 60);
+    return `${minutes}m`
+  }
+  const minutes = Math.floor(roundSeconds / 60);
+  const minutesResidual = minutes % 60;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${minutesResidual}m`
+}
 
 function PomodoroCard(props) {
   const record = props.record
   const index = props.index
-  function formatSeconds(seconds) {
-    const roundSeconds = Math.floor(seconds)
-    if (roundSeconds < 60) {
-      return `${roundSeconds}s`
-    }
-    if (roundSeconds < 3600) {
-      const minutes = Math.floor(roundSeconds / 60);
-      return `${minutes}m`
-    }
-    const minutes = Math.floor(roundSeconds / 60);
-    const minutesResidual = minutes % 60;
-    const hours = Math.floor(minutes / 60);
-    return `${hours}h ${minutesResidual}m`
-  }
 
   return (
     <Card title={`Pomodoro #${index}`}>
@@ -80,7 +81,6 @@ function PomodoroList(props) {
   const [todayOnly, setTodayOnly] = useState(true)
 
   const showTimeSlots = mergedTimeTable
-    .filter((record) => record.detected)
     .filter((record => {
       if (todayOnly) {
         return (new Date(record.startTime).toDateString() === new Date().toDateString())
@@ -105,11 +105,20 @@ function PomodoroList(props) {
         {
           showTimeSlots
             .map((record, index, array) => {
-              return (
+              if (record.detected) {
+                return (
                 <Timeline.Item dot={<ClockCircleOutlined />} key={index}>
                   <PomodoroCard record={record} index={index + 1} />
                 </Timeline.Item>
-              )
+                )
+              }
+              else {
+                return (
+                  <Timeline.Item color="green" dot={<SmileOutlined />} key={index}>
+                    <p> Rest for {formatSeconds(record.timePeriod)} </p>
+                  </Timeline.Item>
+                )
+              }
             }).reverse()
         }
       </Timeline>

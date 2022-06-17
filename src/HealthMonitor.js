@@ -14,25 +14,26 @@ function HealthMonitor(props) {
   const alertStudySeconds = 25 * 60;
   const alertRestSeconds = 5 * 60;
   const detectionInterval = 5;
-  function getDefaultTimeSlot(pinnedSession = false, startTime = null) {
+
+  function getDefaultTimeSlot(detected = true, pinnedSession = false, startTime = null) {
     const usedStateTime = startTime? startTime : new Date().toJSON();
 
     return {
       startTime: usedStateTime,
       endTime: new Date().toJSON(),
-      detected: true,
+      detected: detected,
       timePeriod: 0,
       pinnedSession: pinnedSession
     }
   }
   const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
-    defaultValue: [getDefaultTimeSlot(true)],
+    defaultValue: [getDefaultTimeSlot(true, true)],
     serializer: (v) => JSON.stringify(v),
     deserializer: (v) => {
       const storedTable = JSON.parse(v)
       // Check diff between last end time and current time
       if (new Date() - new Date(storedTable.at(-1).endTime) > alertStudySeconds * 1000) {
-        storedTable.push(getDefaultTimeSlot(true))
+        storedTable.push(getDefaultTimeSlot(true, true))
       }
       return storedTable
     }
@@ -71,7 +72,7 @@ function HealthMonitor(props) {
 
   function addNewTimeTableSession(pinnedSession) {
     const NewMergedTimeTable = mergedTimeTable.slice()
-    NewMergedTimeTable.push(getDefaultTimeSlot(true))
+    NewMergedTimeTable.push(getDefaultTimeSlot(true, pinnedSession))
     setMergedTimeTable(NewMergedTimeTable);
   }
 
@@ -89,7 +90,7 @@ function HealthMonitor(props) {
     }
 
     if (NewMergedTimeTable.at(-1).detected !== currDetected) {
-      NewMergedTimeTable.push(getDefaultTimeSlot(false, NewMergedTimeTable.at(-1).endTime))
+      NewMergedTimeTable.push(getDefaultTimeSlot(currDetected, false, NewMergedTimeTable.at(-1).endTime))
     }
     else {
       NewMergedTimeTable.at(-1).endTime = new Date().toJSON()
