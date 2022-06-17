@@ -16,7 +16,7 @@ function StatusMessage(props) {
       <p className={
         css`
         text-align: left;
-        padding: 10px;
+        padding: 5px 10px;
         margin: 0 auto;
         `
       }> {props.msg + " "}
@@ -103,17 +103,17 @@ function PeriodicFaceDetection(props) {
   return (
     <div className={
       css`
-        padding: 5px;
         display: flex;
         flex-direction: column;
+        margin: 10px 15px;
       `
     }>
       <div className={
         css`
-          margin: 10px 0
+          margin-bottom: 10px
         `
       }>
-        <Button type="primary" block onClick={() => { setStatusHidden(statusHidden => !statusHidden) }}>
+        <Button block onClick={() => { setStatusHidden(statusHidden => !statusHidden) }}>
           {
             statusHidden ? "Show detail status" : "Hide detail status"
           }
@@ -132,7 +132,7 @@ function PeriodicFaceDetection(props) {
           </div>
         </Collapse>
       </div>
-      <Button type="primary" block onClick={() => { setCameraHidden(cameraHidden => !cameraHidden) }}>
+      <Button block onClick={() => { setCameraHidden(cameraHidden => !cameraHidden) }}>
           {
             cameraHidden ? "Show Camera" : "Hide Camera"
           }
@@ -142,6 +142,9 @@ function PeriodicFaceDetection(props) {
           height: ${cameraHeight};
           width: ${cameraHeight};
           overflow: hidden;
+          margin: 10px auto;
+          display: flex;
+          justify-content: center;
         `
       }>
         <Webcam
