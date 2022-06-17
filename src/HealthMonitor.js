@@ -5,6 +5,7 @@ import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import { useLocalStorageState } from 'ahooks';
 import useSound from 'use-sound';
 import { notification } from 'antd';
+import produce from 'immer';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
@@ -45,7 +46,7 @@ function HealthMonitor(props) {
 
   const notificationIntervalSeconds = 60;
   const [notificationHistory, setNotificationHistory] = useState({})
-  const [play] = useSound(process.env.PUBLIC_URL + '/sounds/dingbell.aac');
+  const [playDingBellSfx] = useSound(process.env.PUBLIC_URL + '/sounds/dingbell.aac');
 
   const tempMissingSeconds = 30;
 
@@ -71,47 +72,46 @@ function HealthMonitor(props) {
     }
 
     // If it's okay let's create a notification
-    play();
+    playDingBellSfx();
     if (webNotificationSupported && Notification.permission === "granted") {
       new Notification(message);
     }
-    else {
-      notification.open({
-        message: message,
-        duration: 3,
-      });
-    }
+    notification.open({
+      message: message,
+      duration: 3,
+    });
     
     notificationHistory[message] = new Date()
     setNotificationHistory(notificationHistory);
   }
 
   function addNewTimeTableSession(pinnedSession) {
-    const NewMergedTimeTable = mergedTimeTable.slice()
-    NewMergedTimeTable.push(getDefaultTimeSlot(true, pinnedSession))
-    setMergedTimeTable(NewMergedTimeTable);
+    setMergedTimeTable(produce(mergedTimeTable, (draftMergeTable) => {
+      draftMergeTable.push(getDefaultTimeSlot(true, pinnedSession))
+    }));
   }
 
   function onFaceDetectionResult(detection) {
     // calculate continue time
-    const NewMergedTimeTable = mergedTimeTable.slice()
-    const currDetected = (detection !== undefined)
-    if (NewMergedTimeTable.at(-1).detected !== currDetected
-      && (NewMergedTimeTable.at(-1).timePeriod < tempMissingSeconds)
-      && (NewMergedTimeTable.length > 1)
-      && (!NewMergedTimeTable.at(-1).pinnedSession)) {
-      // If last section is less than tempMissingSeconds seconds
-      // remove last section so that we have a more continous time range.
-      NewMergedTimeTable.pop()
-    }
-
-    if (NewMergedTimeTable.at(-1).detected !== currDetected) {
-      NewMergedTimeTable.push(getDefaultTimeSlot(currDetected, false, NewMergedTimeTable.at(-1).endTime))
-    }
-    else {
-      NewMergedTimeTable.at(-1).endTime = new Date().toJSON()
-      NewMergedTimeTable.at(-1).timePeriod = (new Date() - new Date(NewMergedTimeTable.at(-1).startTime)) / 1000
-    }
+    const NewMergedTimeTable = produce(mergedTimeTable, (draftMergeTable) => {
+      const currDetected = (detection !== undefined)
+      if (draftMergeTable.at(-1).detected !== currDetected
+        && (draftMergeTable.at(-1).timePeriod < tempMissingSeconds)
+        && (draftMergeTable.length > 1)
+        && (!draftMergeTable.at(-1).pinnedSession)) {
+        // If last section is less than tempMissingSeconds seconds
+        // remove last section so that we have a more continous time range.
+        draftMergeTable.pop()
+      }
+  
+      if (draftMergeTable.at(-1).detected !== currDetected) {
+        draftMergeTable.push(getDefaultTimeSlot(currDetected, false, draftMergeTable.at(-1).endTime))
+      }
+      else {
+        draftMergeTable.at(-1).endTime = new Date().toJSON()
+        draftMergeTable.at(-1).timePeriod = (new Date() - new Date(draftMergeTable.at(-1).startTime)) / 1000
+      }
+    })
     setMergedTimeTable(NewMergedTimeTable);
   }
 
