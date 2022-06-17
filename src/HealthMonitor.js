@@ -3,7 +3,6 @@ import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import { useLocalStorageState } from 'ahooks';
-import { Button } from 'antd';
 import useSound from 'use-sound';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
@@ -12,19 +11,33 @@ import PomodoroList from './PomodoroList';
 import IconOverTextButton from './IconOverTextButton';
 
 function HealthMonitor(props) {
+  const alertStudySeconds = 25 * 60;
+  const alertRestSeconds = 5 * 60;
   const detectionInterval = 5;
-  const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
-    defaultValue: [{
-      startTime: new Date().toJSON(),
+  function getDefaultTimeSlot(pinnedSession = false, startTime = null) {
+    const usedStateTime = startTime? startTime : new Date().toJSON();
+
+    return {
+      startTime: usedStateTime,
       endTime: new Date().toJSON(),
       detected: true,
       timePeriod: 0,
-      pinnedSession: false
-    }],
+      pinnedSession: pinnedSession
+    }
+  }
+  const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
+    defaultValue: [getDefaultTimeSlot(true)],
+    serializer: (v) => JSON.stringify(v),
+    deserializer: (v) => {
+      const storedTable = JSON.parse(v)
+      // Check diff between last end time and current time
+      if (new Date() - new Date(storedTable.at(-1).endTime) > alertStudySeconds * 1000) {
+        storedTable.push(getDefaultTimeSlot(true))
+      }
+      return storedTable
+    }
   });
 
-  const alertStudySeconds = 25 * 60;
-  const alertRestSeconds = 5 * 60;
   const notificationIntervalSeconds = 60;
   const [notificationHistory, setNotificationHistory] = useState({})
   const [play] = useSound(process.env.PUBLIC_URL + '/sounds/dingbell.aac');
@@ -58,13 +71,7 @@ function HealthMonitor(props) {
 
   function addNewTimeTableSession(pinnedSession) {
     const NewMergedTimeTable = mergedTimeTable.slice()
-    NewMergedTimeTable.push({
-      startTime: NewMergedTimeTable.at(-1).endTime,
-      endTime: new Date().toJSON(),
-      detected: true,
-      timePeriod: 0,
-      pinnedSession: pinnedSession
-    })
+    NewMergedTimeTable.push(getDefaultTimeSlot(true))
     setMergedTimeTable(NewMergedTimeTable);
   }
 
@@ -82,13 +89,7 @@ function HealthMonitor(props) {
     }
 
     if (NewMergedTimeTable.at(-1).detected !== currDetected) {
-      NewMergedTimeTable.push({
-        startTime: NewMergedTimeTable.at(-1).endTime,
-        endTime: new Date().toJSON(),
-        detected: currDetected,
-        timePeriod: 0,
-        pinnedSession: true
-      })
+      NewMergedTimeTable.push(getDefaultTimeSlot(false, NewMergedTimeTable.at(-1).endTime))
     }
     else {
       NewMergedTimeTable.at(-1).endTime = new Date().toJSON()

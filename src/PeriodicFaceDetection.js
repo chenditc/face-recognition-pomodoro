@@ -8,11 +8,10 @@ import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
 import SmileOutlined from '@ant-design/icons/SmileOutlined';
 import CameraOutlined from '@ant-design/icons/CameraOutlined';
 
-import { Button } from 'antd';
 import { Popover } from 'antd';
-import { Collapse } from 'react-collapse';
 
 import IconOverTextButton from './IconOverTextButton';
+import { useToggle } from 'ahooks';
 
 function StatusMessage(props) {
   return (
@@ -33,7 +32,7 @@ function StatusMessage(props) {
   )
 }
 
-function GetFaceDetectionStatus(cameraSupported, faceDetected, modelsLoaded) {
+function GetFaceDetectionStatus(autoSessionEnabled, cameraSupported, faceDetected, modelsLoaded) {
   return (
     <div className={
       css`
@@ -42,6 +41,7 @@ function GetFaceDetectionStatus(cameraSupported, faceDetected, modelsLoaded) {
       justify-content: space-between;
     `
     }>
+      <StatusMessage msg="Enable Auto Session:" status={autoSessionEnabled} />
       <StatusMessage msg="Camera Supported:" status={cameraSupported} />
       <StatusMessage msg="Face Detected:" status={faceDetected} />
       <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
@@ -58,10 +58,15 @@ function PeriodicFaceDetection(props) {
   const detectionInterval = props.detectionInterval
   const modelInputSize = 128;
   const scoreThreshold = 0.25
-  const [cameraHidden, setCameraHidden] = useState(null);
-  const [statusHidden, setStatusHidden] = useState(true);
+  const [cameraHidden, opsCameraHidden] = useToggle(true);
+  const [enableDetection, opsEnableDetection] = useToggle(false);
 
+  // Detect face every n seconds
   useInterval(() => {
+    if (!enableDetection) {
+      return;
+    }
+
     if (!modelsLoaded) {
       return
     }
@@ -122,21 +127,26 @@ function PeriodicFaceDetection(props) {
   return (
     <>
       <Popover
-        content={GetFaceDetectionStatus(cameraSupported, detected, modelsLoaded)}
+        content={GetFaceDetectionStatus(enableDetection, cameraSupported, detected, modelsLoaded)}
         title="Face Detection Status" trigger="hover">
-        <IconOverTextButton icon={SmileOutlined} text="Enable Auto Detection" />
+        <IconOverTextButton
+          onClick={opsEnableDetection.toggle}
+          icon={SmileOutlined}
+          text={enableDetection ? "Disable Auto Session" : "Enable Auto Session"} />
         <span />
       </Popover>
-      <IconOverTextButton
-        icon={CameraOutlined}
-        onClick={() => { setCameraHidden(cameraHidden => !cameraHidden) }}
-        text={cameraHidden ? "Show Camera" : "Hide Camera"} />
-      <div className={css`
+
+      {enableDetection ?
+        (<><IconOverTextButton
+          icon={CameraOutlined}
+          onClick={opsCameraHidden.toggle}
+          text={cameraHidden ? "Show Camera" : "Hide Camera"} />
+          <div className={css`
       display: block; 
       width:100%;
       `}>
-      <div className={
-        css`
+            <div className={
+              css`
           height: ${cameraHeight};
           width: ${cameraHeight};
           overflow: hidden;
@@ -144,15 +154,16 @@ function PeriodicFaceDetection(props) {
           display: flex;
           justify-content: center;
         `
-      }>
-        <Webcam
-          audio={false}
-          ref={webcamRef}
-          screenshotFormat="image/jpeg"
-          videoConstraints={{ facingMode: "user" }}
-        />
-      </div>
-      </div>
+            }>
+              <Webcam
+                audio={false}
+                ref={webcamRef}
+                screenshotFormat="image/jpeg"
+                videoConstraints={{ facingMode: "user" }}
+              />
+            </div>
+          </div></>) : <></>}
+
     </>
   )
 }

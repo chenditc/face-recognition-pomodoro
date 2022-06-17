@@ -4,15 +4,15 @@ import { css } from '@emotion/css'
 
 function IconOverTextButton(props) {
   return (
-  <Button onClick={props.onClick} className={css`height: 6.5em`} type="text">
-    <Icon component={props.icon} className={
+    <Button onClick={props.onClick} className={
       css`
-      color: "#1faa00";
-      font-size: 4em;
-    `
-    } />
-    <p> {props.text}</p>
-  </Button>
+       height: 6.5em;
+       border: 0px;
+      `
+    } type="default">
+      <Icon component={props.icon} className={css`font-size: 4em;`} />
+      <p> {props.text}</p>
+    </Button>
   )
 }
 
