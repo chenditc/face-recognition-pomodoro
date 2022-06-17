@@ -48,17 +48,23 @@ function HealthMonitor(props) {
 
   const tempMissingSeconds = 30;
 
-  const isSupported = () =>
-    'Notification' in window &&
-    'serviceWorker' in navigator &&
-    'PushManager' in window
+  const [webNotificationSupported, setWebNotificationSupported] = useState(false)
 
   useEffect(() => {
-    if (!isSupported) alert("This browser does not support desktop notification");
+    const isSupported = 'Notification' in window &&
+    'serviceWorker' in navigator &&
+    'PushManager' in window;
+    setWebNotificationSupported(isSupported)
+    if (!isSupported) {
+      alert("This browser does not support desktop notification");
+      return;
+    }
+    Notification.requestPermission()
   }, [])
 
   function sendNotification(message) {
-    if (!isSupported) {
+    // TODO: Use in page notification if not supported
+    if (!webNotificationSupported) {
       return;
     }
 
@@ -112,8 +118,6 @@ function HealthMonitor(props) {
   }
 
   useInterval(() => {
-    Notification.requestPermission()
-
     // Update continue face time and continue rest time
     lastTimeSlot.timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (lastTimeSlot.timePeriod > alertStudySeconds)) {
