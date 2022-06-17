@@ -19,6 +19,7 @@
     "react-scripts": "5.0.1",
     "react-webcam": "^7.0.1",
     "use-interval": "^1.4.0",
+    "use-sound": "^4.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

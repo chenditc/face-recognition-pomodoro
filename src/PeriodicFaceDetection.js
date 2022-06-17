@@ -105,7 +105,7 @@ function PeriodicFaceDetection(props) {
       css`
         display: flex;
         flex-direction: column;
-        margin: 10px 15px;
+        margin-top: 10px;
       `
     }>
       <div className={

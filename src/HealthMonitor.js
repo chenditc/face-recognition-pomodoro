@@ -3,7 +3,7 @@ import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import { useLocalStorageState } from 'ahooks';
 import { Button } from 'antd';
-
+import useSound from 'use-sound';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
@@ -11,7 +11,6 @@ import PomodoroList from './PomodoroList';
 
 function HealthMonitor(props) {
   const detectionInterval = 5;
-  const [continousTimeTable, setContinousTimeTable] = useState([])
   const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
     defaultValue: [{
       startTime: new Date().toJSON(),
@@ -21,18 +20,13 @@ function HealthMonitor(props) {
       pinnedSession: false
     }],
   });
-  /*
-  const [mergedTimeTable, setMergedTimeTable] = useState([{
-    startTime: new Date(),
-    endTime: new Date(),
-    detected: true,
-    timePeriod: 0
-  }])
-  */
+
   const alertStudySeconds = 25 * 60;
   const alertRestSeconds = 5 * 60;
   const notificationIntervalSeconds = 60;
   const [notificationHistory, setNotificationHistory] = useState({})
+  const [play] = useSound(process.env.PUBLIC_URL + '/sounds/dingbell.aac');
+
   const tempMissingSeconds = 30;
 
   function sendNotification(message) {
@@ -53,6 +47,7 @@ function HealthMonitor(props) {
     }
 
     // If it's okay let's create a notification
+    play();
     new Notification(message);
     notificationHistory[message] = new Date()
     setNotificationHistory(notificationHistory);
@@ -72,12 +67,6 @@ function HealthMonitor(props) {
   }
 
   function onFaceDetectionResult(detection) {
-    // Add new time slow with detection result
-    // TODO: use the detection info to get box area range for smarter detection
-    const NewContinousTimeTable = continousTimeTable.slice()
-    NewContinousTimeTable.push({ time: new Date(), result: detection })
-    setContinousTimeTable(NewContinousTimeTable);
-
     // calculate continue time
     const NewMergedTimeTable = mergedTimeTable.slice()
     const currDetected = (detection !== undefined)
@@ -103,7 +92,6 @@ function HealthMonitor(props) {
       NewMergedTimeTable.at(-1).endTime = new Date().toJSON()
       NewMergedTimeTable.at(-1).timePeriod = (new Date() - new Date(NewMergedTimeTable.at(-1).startTime)) / 1000
     }
-
     setMergedTimeTable(NewMergedTimeTable);
   }
 
@@ -125,7 +113,7 @@ function HealthMonitor(props) {
   const statusMessage = mergedTimeTable.at(-1).detected ? "WORKING" : "REST";
 
   return (
-    <div>
+    <div className={css`margin: 0 15px;`}>
       <p className={
         css`
           font-size: 20vw;
@@ -134,29 +122,16 @@ function HealthMonitor(props) {
         `
       }> {statusMessage} </p>
 
-      <div className={
-        css`
-          margin: 0 15px;
-        `
-      }>
-        <ReactFlipClock clockFace='TwelveHourClock' startTime={mergedTimeTable.at(-1).startTime} />
-        <Button block onClick={() => addNewTimeTableSession(true)}>
-          New Pomodoro Session
-        </Button>
-      </div>
+      <ReactFlipClock clockFace='TwelveHourClock' startTime={mergedTimeTable.at(-1).startTime} />
+      <Button block onClick={() => addNewTimeTableSession(true)}>
+        New Pomodoro Session
+      </Button>
 
       <PeriodicFaceDetection
         detectionInterval={detectionInterval}
         onFaceDetectionResult={onFaceDetectionResult}
       />
-      <div className={
-        css`
-          margin: 0 15px
-        `
-      }>
       <PomodoroList mergedTimeTable={mergedTimeTable} />
-      </div>
-
     </div>
   )
 }
