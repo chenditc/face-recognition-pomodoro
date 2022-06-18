@@ -108,9 +108,6 @@ function PeriodicFaceDetection(props) {
   }, []);
 
   const cameraHeight = PomoConfigs.cameraHidden ? "1px" : "100%"
-
-  console.log("Camera hidden:", PomoConfigs.cameraHidden)
-
   return (
     <>
 

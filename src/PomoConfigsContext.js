@@ -4,6 +4,7 @@ const defaultPomoConfigs = {
   alertStudySeconds: 25 * 60,
   alertRestSeconds: 5 * 60,
   notificationIntervalSeconds: 60,
+  notificationIntervalMultiplier: 2,
   tempMissingSeconds: 30,
   maxLocalStorageTimeSlot: 100,
   faceRecognition: {

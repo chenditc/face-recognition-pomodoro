@@ -7,10 +7,13 @@ import { notification } from 'antd';
 import produce from 'immer';
 import { useContext } from 'react';
 
+import { Elevation } from '@rmwc/elevation';
+import '@rmwc/elevation/styles';
+
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
 import PomodoroList from './PomodoroList';
-import {PomoConfigsContext} from './PomoConfigsContext'
+import { PomoConfigsContext } from './PomoConfigsContext'
 
 function HealthMonitor() {
   const PomoConfigs = useContext(PomoConfigsContext);
@@ -40,13 +43,12 @@ function HealthMonitor() {
         storedTable.push(getDefaultTimeSlot(true, true))
       }
       // Keep only last maxLocalStorageTimeSlot session for now
-      return storedTable.slice(0-maxLocalStorageTimeSlot)
+      return storedTable.slice(0 - maxLocalStorageTimeSlot)
     }
   });
 
   const lastTimeSlot = mergedTimeTable.at(-1)
 
-  const notificationIntervalSeconds = PomoConfigs.notificationIntervalSeconds;
   const [notificationHistory, setNotificationHistory] = useState({})
   const [playDingBellSfx] = useSound(process.env.PUBLIC_URL + '/sounds/dingbell.aac');
 
@@ -68,7 +70,7 @@ function HealthMonitor() {
 
   function sendNotification(message) {
     if (notificationHistory[message] && (
-      (new Date() - notificationHistory[message]) < (notificationIntervalSeconds * 1000))) {
+      (new Date() - notificationHistory[message].lastSendTime) < (notificationHistory[message].nextSendInterval * 1000))) {
       // Only send notification every notificationIntervalSeconds
       return;
     }
@@ -83,7 +85,14 @@ function HealthMonitor() {
       duration: 3,
     });
 
-    notificationHistory[message] = new Date()
+    const nextSendInterval = notificationHistory[message] ?
+      notificationHistory[message].nextSendInterval * 2 :
+      PomoConfigs.notificationIntervalSeconds;
+
+    notificationHistory[message] = {
+      lastSendTime: new Date(),
+      nextSendInterval: nextSendInterval
+    }
     setNotificationHistory(notificationHistory);
   }
 
@@ -116,10 +125,15 @@ function HealthMonitor() {
     const timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (timePeriod > alertStudySeconds)) {
       sendNotification("该休息啦")
+      return;
     }
 
     if (!lastTimeSlot.detected && (timePeriod > alertRestSeconds)) {
       sendNotification("休息够啦")
+      return;
+    }
+    if (timePeriod > PomoConfigs.tempMissingSeconds) {
+      setNotificationHistory({})
     }
   }, 500, true)
 
@@ -136,7 +150,7 @@ function HealthMonitor() {
         margin: 0 auto;
       }
       `
-      }>
+    }>
         <p className={
           css`
           font-size: 20vw;
@@ -152,19 +166,18 @@ function HealthMonitor() {
         }> {statusMessage} </p>
 
         <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
-
-        <div className={
-          css`
+      <div className={
+        css`
           display: flex;
           flex-wrap: wrap;
           justify-content: space-around;
         `
-        }>
-          <PeriodicFaceDetection
-            onFaceDetectionResult={onFaceDetectionResult}
-          />
-        </div>
-        <PomodoroList mergedTimeTable={mergedTimeTable} />
+      }>
+        <PeriodicFaceDetection
+          onFaceDetectionResult={onFaceDetectionResult}
+        />
+      </div>
+      <PomodoroList mergedTimeTable={mergedTimeTable} />
     </div>
   )
 }
