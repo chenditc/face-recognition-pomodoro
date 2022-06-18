@@ -1,17 +1,13 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useContext } from 'react';
 import Webcam from "react-webcam";
 import * as faceapi from 'face-api.js';
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import CheckSquareFilled from '@ant-design/icons/CheckSquareFilled';
 import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
-import SmileOutlined from '@ant-design/icons/SmileOutlined';
-import CameraOutlined from '@ant-design/icons/CameraOutlined';
 
-import { Popover } from 'antd';
+import { PomoConfigsContext } from './PomoConfigsContext';
 
-import IconOverTextButton from './IconOverTextButton';
-import { useToggle } from 'ahooks';
 
 function StatusMessage(props) {
   return (
@@ -32,7 +28,7 @@ function StatusMessage(props) {
   )
 }
 
-function GetFaceDetectionStatus(autoSessionEnabled, cameraSupported, faceDetected, modelsLoaded) {
+function GetFaceDetectionStatus(cameraSupported, faceDetected, modelsLoaded) {
   return (
     <div className={
       css`
@@ -41,7 +37,6 @@ function GetFaceDetectionStatus(autoSessionEnabled, cameraSupported, faceDetecte
       justify-content: space-between;
     `
     }>
-      <StatusMessage msg="Enable Auto Session:" status={autoSessionEnabled} />
       <StatusMessage msg="Camera Supported:" status={cameraSupported} />
       <StatusMessage msg="Face Detected:" status={faceDetected} />
       <StatusMessage msg="Model Loaded:" status={modelsLoaded} />
@@ -50,16 +45,16 @@ function GetFaceDetectionStatus(autoSessionEnabled, cameraSupported, faceDetecte
 }
 
 function PeriodicFaceDetection(props) {
+  const PomoConfigs = useContext(PomoConfigsContext)
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const webcamRef = useRef(null);
   const [detected, setDetected] = useState(false)
   const [cameraSupported] = useState('mediaDevices' in navigator);
   const onFaceDetectionResult = props.onFaceDetectionResult
-  const detectionInterval = props.detectionInterval
-  const modelInputSize = 128;
-  const scoreThreshold = 0.25
-  const [cameraHidden, opsCameraHidden] = useToggle(true);
-  const [enableDetection, opsEnableDetection] = useToggle(false);
+  const detectionInterval = PomoConfigs.faceRecognition.detectionInterval;
+  const modelInputSize = PomoConfigs.faceRecognition.modelInputSize;
+  const scoreThreshold = PomoConfigs.faceRecognition.scoreThreshold;
+  const enableDetection = PomoConfigs.enableDetection;
 
   // Detect face every n seconds
   useInterval(() => {
@@ -112,25 +107,17 @@ function PeriodicFaceDetection(props) {
     loadModels();
   }, []);
 
-  const cameraHeight = cameraHidden ? "1px" : "100%"
+  const cameraHeight = PomoConfigs.cameraHidden ? "1px" : "100%"
+
+  console.log("Camera hidden:", PomoConfigs.cameraHidden)
 
   return (
     <>
-      <Popover
-        content={GetFaceDetectionStatus(enableDetection, cameraSupported, detected, modelsLoaded)}
-        title="Face Detection Status" trigger="hover">
-        <IconOverTextButton
-          onClick={opsEnableDetection.toggle}
-          icon={SmileOutlined}
-          text={enableDetection ? "Disable Auto Session" : "Enable Auto Session"} />
-        <span />
-      </Popover>
+
+      {enableDetection && PomoConfigs.faceRecognition.showFaceRecognitionStatus ? GetFaceDetectionStatus(cameraSupported, detected, modelsLoaded) : <></>}
 
       {enableDetection ?
-        (<><IconOverTextButton
-          icon={CameraOutlined}
-          onClick={opsCameraHidden.toggle}
-          text={cameraHidden ? "Show Camera" : "Hide Camera"} />
+        (<>
           <div className={css`
       display: block; 
       width:100%;

@@ -1,12 +1,9 @@
-import HealthMonitor from "./HealthMonitor";
-import 'antd/dist/antd.css';
+import FaceRecognitionPomo from "./FaceRecognitionPomo";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-          <HealthMonitor />
-      </header>
+    <div>
+      <FaceRecognitionPomo />
     </div>
   );
 }

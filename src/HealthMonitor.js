@@ -1,24 +1,26 @@
 import { useEffect, useState } from 'react';
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
-import PlayCircleOutlined from '@ant-design/icons/PlayCircleOutlined';
 import { useLocalStorageState } from 'ahooks';
 import useSound from 'use-sound';
 import { notification } from 'antd';
 import produce from 'immer';
+import { useContext } from 'react';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
 import PomodoroList from './PomodoroList';
-import IconOverTextButton from './IconOverTextButton';
+import {PomoConfigsContext} from './PomoConfigsContext'
 
-function HealthMonitor(props) {
-  const alertStudySeconds = 25 * 60;
-  const alertRestSeconds = 5 * 60;
-  const detectionInterval = 5;
+function HealthMonitor() {
+  const PomoConfigs = useContext(PomoConfigsContext);
+
+  const alertStudySeconds = PomoConfigs.alertStudySeconds;
+  const alertRestSeconds = PomoConfigs.alertRestSeconds;
+  const maxLocalStorageTimeSlot = PomoConfigs.maxLocalStorageTimeSlot;
 
   function getDefaultTimeSlot(detected = true, pinnedSession = false, startTime = null) {
-    const usedStateTime = startTime? startTime : new Date().toJSON();
+    const usedStateTime = startTime ? startTime : new Date().toJSON();
 
     return {
       startTime: usedStateTime,
@@ -37,25 +39,25 @@ function HealthMonitor(props) {
       if (new Date() - new Date(storedTable.at(-1).endTime) > alertStudySeconds * 1000) {
         storedTable.push(getDefaultTimeSlot(true, true))
       }
-      // Keep only last 100 session for now
-      return storedTable.slice(-100)
+      // Keep only last maxLocalStorageTimeSlot session for now
+      return storedTable.slice(0-maxLocalStorageTimeSlot)
     }
   });
 
   const lastTimeSlot = mergedTimeTable.at(-1)
 
-  const notificationIntervalSeconds = 60;
+  const notificationIntervalSeconds = PomoConfigs.notificationIntervalSeconds;
   const [notificationHistory, setNotificationHistory] = useState({})
   const [playDingBellSfx] = useSound(process.env.PUBLIC_URL + '/sounds/dingbell.aac');
 
-  const tempMissingSeconds = 30;
+  const tempMissingSeconds = PomoConfigs.tempMissingSeconds;
 
   const [webNotificationSupported, setWebNotificationSupported] = useState(false)
 
   useEffect(() => {
     const isSupported = 'Notification' in window &&
-    'serviceWorker' in navigator &&
-    'PushManager' in window;
+      'serviceWorker' in navigator &&
+      'PushManager' in window;
     setWebNotificationSupported(isSupported)
     if (!isSupported) {
       console.log("This browser does not support desktop notification")
@@ -80,15 +82,9 @@ function HealthMonitor(props) {
       message: message,
       duration: 3,
     });
-    
+
     notificationHistory[message] = new Date()
     setNotificationHistory(notificationHistory);
-  }
-
-  function addNewTimeTableSession(pinnedSession) {
-    setMergedTimeTable(produce(mergedTimeTable, (draftMergeTable) => {
-      draftMergeTable.push(getDefaultTimeSlot(true, pinnedSession))
-    }));
   }
 
   function onFaceDetectionResult(detection) {
@@ -103,7 +99,7 @@ function HealthMonitor(props) {
         // remove last section so that we have a more continous time range.
         draftMergeTable.pop()
       }
-  
+
       if (draftMergeTable.at(-1).detected !== currDetected) {
         draftMergeTable.push(getDefaultTimeSlot(currDetected, false, draftMergeTable.at(-1).endTime))
       }
@@ -117,12 +113,12 @@ function HealthMonitor(props) {
 
   useInterval(() => {
     // Update continue face time and continue rest time
-    lastTimeSlot.timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
-    if (lastTimeSlot.detected && (lastTimeSlot.timePeriod > alertStudySeconds)) {
+    const timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
+    if (lastTimeSlot.detected && (timePeriod > alertStudySeconds)) {
       sendNotification("该休息啦")
     }
 
-    if (!lastTimeSlot.detected && (lastTimeSlot.timePeriod > alertRestSeconds)) {
+    if (!lastTimeSlot.detected && (timePeriod > alertRestSeconds)) {
       sendNotification("休息够啦")
     }
   }, 500, true)
@@ -130,34 +126,45 @@ function HealthMonitor(props) {
   const statusMessage = lastTimeSlot.detected ? "WORKING" : "REST";
 
   return (
-    <div className={css`margin: 0 15px;`}>
-      <p className={
-        css`
+
+    <div className={
+      css`
+      margin: 0 15px;
+      max-width: 700px;
+      min-width: 400px;
+      @media (min-width: 730px) {
+        margin: 0 auto;
+      }
+      `
+      }>
+        <p className={
+          css`
           font-size: 20vw;
           margin: 0 auto;
           text-align: center;
+          @media (min-width: 700px) {
+            font-size: 140px;
+          }
+          @media (max-width: 400px) {
+            font-size: 80px;
+          }
         `
-      }> {statusMessage} </p>
+        }> {statusMessage} </p>
 
-      <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
+        <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
 
-      <div className={
-        css`
+        <div className={
+          css`
           display: flex;
           flex-wrap: wrap;
           justify-content: space-around;
         `
-      }>
-        <IconOverTextButton
-          onClick={() => addNewTimeTableSession(true)}
-          text="New Session"
-          icon={PlayCircleOutlined} />
-        <PeriodicFaceDetection
-          detectionInterval={detectionInterval}
-          onFaceDetectionResult={onFaceDetectionResult}
-        />
-      </div>
-      <PomodoroList mergedTimeTable={mergedTimeTable} />
+        }>
+          <PeriodicFaceDetection
+            onFaceDetectionResult={onFaceDetectionResult}
+          />
+        </div>
+        <PomodoroList mergedTimeTable={mergedTimeTable} />
     </div>
   )
 }

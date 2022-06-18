@@ -5,7 +5,8 @@ import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+  // Remove restrict mode since meterial component dialog conflict with
+  //<React.StrictMode>
     <App />
-  </React.StrictMode>
+  //  </React.StrictMode>
 );
