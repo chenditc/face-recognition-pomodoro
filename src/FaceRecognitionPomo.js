@@ -35,7 +35,7 @@ function FaceRecognitionPomo() {
         }}
       >
         <Portal />
-        <TopAppBar>
+        <TopAppBar style={{zIndex: 10}}>
           <TopAppBarRow>
             <TopAppBarSection alignStart>
               <TopAppBarActionItem icon="help" onClick={() => setOpenIntroDialog(true)} />
