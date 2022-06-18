@@ -15,6 +15,7 @@ import '@rmwc/top-app-bar/styles';
 import '@rmwc/icon/styles';
 
 import PomoConfigsDialog from "./PomoConfigsDialog";
+import IntroDialog from "./IntroDialog";
 
 function FaceRecognitionPomo() {
   const [pomoConfigs, setPomoConfigs] = useLocalStorageState("pomoConfig", {
@@ -22,20 +23,22 @@ function FaceRecognitionPomo() {
   })
 
   const [openConfigDialog, setOpenConfigDialog] = useState(false);
-
+  const [openIntroDialog, setOpenIntroDialog] = useState(true);
   return (
     <>
       <ThemeProvider
         options={{
-          primary: '#424242',
-          secondary: '#FB8C00'
+//          primary: '#424242',
+//          secondary: '#FB8C00'
+          primary: '#bf360c',
+          secondary: '#616161'
         }}
       >
         <Portal />
         <TopAppBar>
           <TopAppBarRow>
             <TopAppBarSection alignStart>
-              <TopAppBarActionItem icon="help" />
+              <TopAppBarActionItem icon="help" onClick={() => setOpenIntroDialog(true)} />
             </TopAppBarSection>
             <TopAppBarSection className={css`justify-content: center`}>
               <TopAppBarTitle >
@@ -49,12 +52,15 @@ function FaceRecognitionPomo() {
         </TopAppBar>
         <TopAppBarFixedAdjust />
 
+        <IntroDialog 
+          open={openIntroDialog}
+          onClose={() => setOpenIntroDialog(false)} 
+          />
         <PomoConfigsDialog 
-        open={openConfigDialog} 
-        onClose={() => setOpenConfigDialog(false)} 
-        pomoConfigs={pomoConfigs}
-        setPomoConfigs={setPomoConfigs}
-
+          open={openConfigDialog} 
+          onClose={() => setOpenConfigDialog(false)} 
+          pomoConfigs={pomoConfigs}
+          setPomoConfigs={setPomoConfigs}
         />
 
         <PomoConfigsContext.Provider value={pomoConfigs}>

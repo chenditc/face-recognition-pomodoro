@@ -22,13 +22,14 @@ import { useImmer } from "use-immer";
 function PomoConfigsDialog(props) {
   const [newPomoConfig, setNewPomoConfig] = useImmer(props.pomoConfigs);
 
-  console.log(newPomoConfig);
   return (
     <>
       <Dialog
         open={props.open}
-        onClose={() => {
-          props.setPomoConfigs(newPomoConfig);
+        onClose={(event) => {
+          if (event.target.action === "confirm") {
+            props.setPomoConfigs(newPomoConfig);
+          }
           props.onClose()
         }}
         renderToPortal={true}
@@ -206,8 +207,9 @@ function PomoConfigsDialog(props) {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <DialogButton action="accept" isDefaultAction>
-            Finish
+          <DialogButton action="close">Cancel</DialogButton>
+          <DialogButton action="confirm" isDefaultAction>
+            Confirm
           </DialogButton>
         </DialogActions>
       </Dialog>
