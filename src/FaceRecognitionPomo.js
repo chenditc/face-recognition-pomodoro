@@ -7,6 +7,7 @@ import { defaultPomoConfigs, PomoConfigsContext } from './PomoConfigsContext'
 import { TopAppBar, TopAppBarRow, TopAppBarSection, TopAppBarActionItem, TopAppBarTitle, TopAppBarFixedAdjust } from '@rmwc/top-app-bar';
 import { ThemeProvider } from '@rmwc/theme'
 import { Portal } from '@rmwc/base';
+import { css } from "@emotion/css";
 
 import '@rmwc/theme/styles';
 import '@rmwc/typography/styles';
@@ -36,8 +37,8 @@ function FaceRecognitionPomo() {
             <TopAppBarSection alignStart>
               <TopAppBarActionItem icon="help" />
             </TopAppBarSection>
-            <TopAppBarSection>
-              <TopAppBarTitle>
+            <TopAppBarSection className={css`justify-content: center`}>
+              <TopAppBarTitle >
                 Face Recognition Pomodoro
               </TopAppBarTitle>
             </TopAppBarSection>
