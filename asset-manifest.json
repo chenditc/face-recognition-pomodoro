@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/face-recognition-pomodoro/static/css/main.cc10ddaf.css",
-    "main.js": "/face-recognition-pomodoro/static/js/main.b967e156.js",
+    "main.css": "/face-recognition-pomodoro/static/css/main.a932d609.css",
+    "main.js": "/face-recognition-pomodoro/static/js/main.4d576a8d.js",
     "static/js/510.4d4b6364.chunk.js": "/face-recognition-pomodoro/static/js/510.4d4b6364.chunk.js",
     "index.html": "/face-recognition-pomodoro/index.html",
     "static/media/antd.less": "/face-recognition-pomodoro/static/media/antd.7affb7a1925b6ab47ea6.less"
   },
   "entrypoints": [
-    "static/css/main.cc10ddaf.css",
-    "static/js/main.b967e156.js"
+    "static/css/main.a932d609.css",
+    "static/js/main.4d576a8d.js"
   ]
 }
