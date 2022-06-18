@@ -145,7 +145,7 @@ function HealthMonitor() {
       css`
       margin: 0 15px;
       max-width: 700px;
-      min-width: 400px;
+      min-width: 350px;
       @media (min-width: 730px) {
         margin: 0 auto;
       }
@@ -159,8 +159,8 @@ function HealthMonitor() {
           @media (min-width: 700px) {
             font-size: 140px;
           }
-          @media (max-width: 400px) {
-            font-size: 80px;
+          @media (max-width: 350px) {
+            font-size: 75px;
           }
         `
         }> {statusMessage} </p>

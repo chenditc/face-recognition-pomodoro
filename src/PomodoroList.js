@@ -104,7 +104,7 @@ function PomodoroList(props) {
           flex-wrap: wrap;
         `
       }>
-        <h3>Pomodoro List</h3>
+        <h3>Pomodoro History</h3>
         <Checkbox checked={todayOnly} onChange={() => setTodayOnly(x => !x)}>Show Today Only </Checkbox>
       </div>
       <Timeline mode="left">

@@ -66,14 +66,14 @@ function IntroDialog(props) {
             <CardPrimaryAction>
               <div style={{ padding: '0 1rem 1rem 1rem' }}>
                 <Typography use="headline6" tag="h2">
-                What this intro always popup?
+                Why this intro always popup on start?
                 </Typography>
                 <Typography
                   use="body1"
                   tag="div"
                   theme="textSecondaryOnBackground"
                 >
-                  There must be at least one user interaction to make notification works.
+                  There must be at least one user interaction to make notification works, so I take this opportunity to intro the tool.
                 </Typography>
               </div>
             </CardPrimaryAction>
