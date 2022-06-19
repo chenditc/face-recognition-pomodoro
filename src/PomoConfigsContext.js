@@ -6,14 +6,18 @@ const defaultPomoConfigs = {
   notificationIntervalSeconds: 60,
   notificationIntervalMultiplier: 2,
   tempMissingSeconds: 30,
-  maxLocalStorageTimeSlot: 100,
+  history: {
+    maxLocalStorageTimeSlot: 100,
+    showPomodoroHistory: true,
+    onlyShowToday: true,
+  },
   faceRecognition: {
     detectionInterval: 5,
-    modelInputSize: 128,
-    scoreThreshold: 0.6,
-    showFaceRecognitionStatus: true
+    scoreThreshold: 0.95,
+    showFaceRecognitionStatus: true,
+    showFaceRecognitionCanvas: false,
+    showCameraPreview: false,
   },
-  cameraHidden: true,
   enableDetection: true,
 }
 const PomoConfigsContext = React.createContext(defaultPomoConfigs);

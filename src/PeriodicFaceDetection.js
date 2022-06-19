@@ -31,18 +31,18 @@ function StatusMessage(props) {
 }
 
 function GetFaceDetectionStatus(cameraSupported, cameraReady, faceDetected, humanML) {
-  const modelLoaded = humanML.current ? humanML.current.performance.loadModels > 0 : false;
+  const models = humanML.current ? Object.keys(humanML.current.models).filter((model) => (humanML.current.models[model] !== null)).length : 0;
   const cameraMessage = cameraSupported ? "Camera Ready:" : "Camera Supported";
   const cameraStatus = cameraSupported ? cameraReady : cameraSupported;
   return (
     <Grid>
-      <GridCell span={2}>
+      <GridCell desktop={4} span={2} phone={4}>
         <StatusMessage msg={cameraMessage} status={cameraStatus} />
       </GridCell>
-      <GridCell span={2}>
-        <StatusMessage msg="Model loaded:" status={modelLoaded} />
+      <GridCell desktop={4} span={2} phone={4}>
+        <StatusMessage msg="Model loaded:" status={models > 0} />
       </GridCell>
-      <GridCell span={2}>
+      <GridCell desktop={4} span={2} phone={4}>
         <StatusMessage msg="Face Detected:" status={faceDetected} />
       </GridCell>
     </Grid>
@@ -52,6 +52,7 @@ function GetFaceDetectionStatus(cameraSupported, cameraReady, faceDetected, huma
 function PeriodicFaceDetection(props) {
   const PomoConfigs = useContext(PomoConfigsContext)
   const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
   const [detected, setDetected] = useState(false)
   const [cameraSupported] = useState('mediaDevices' in navigator);
 
@@ -73,7 +74,7 @@ function PeriodicFaceDetection(props) {
         emotion: { enabled: false },
         antispoof: { enabled: false },
         liveness: { enabled: false },
-        mesh: { enabled: false },
+        mesh: { enabled: true },
         attention: { enabled: false },
         iris: { enabled: false },
         description: { enabled: false },
@@ -96,62 +97,79 @@ function PeriodicFaceDetection(props) {
     async function detectUsingModel() {
       try {
         setDetectionRunning(true);
+
+        const startTime = new Date();
+
         const inputVideo = webcamRef.current.video;
         const detectionResult = await humanML.current.detect(inputVideo)
-        return detectionResult.face.filter((x) => x.score > scoreThreshold).at(-1)
+        const detectedFace = detectionResult.face.filter((x) => x.score > scoreThreshold).at(-1)
+        onFaceDetectionResult(detectedFace);
+        setDetected(detectedFace);
+        console.log("Detection used ", ((new Date() - startTime).toString()), "ms");
+
+        if (PomoConfigs.faceRecognition.showFaceRecognitionCanvas) {
+          humanML.current.draw.canvas(inputVideo, canvasRef.current)
+          humanML.current.draw.all(canvasRef.current, detectionResult);
+        }
       }
       finally {
         setDetectionRunning(false);
       }
     }
 
-    detectUsingModel().then(
-      (detectionResult) => {
-        onFaceDetectionResult(detectionResult);
-        setDetected(detectionResult);
-      }
-    )
-
+    detectUsingModel()
   }, detectionInterval * 1000, true)
 
   const videoConstraintAbility = navigator.mediaDevices.getSupportedConstraints();
   const videoConstraints = {
+    width: { ideal: 640 },
+    height: { ideal: 480 },
     facingMode: "user",
   }
   // Save bandwidth by reducing framerate
-  if (videoConstraintAbility.frameRate && PomoConfigs.cameraHidden) {
+  if (videoConstraintAbility.frameRate && !PomoConfigs.faceRecognition.showCameraPreview) {
     videoConstraints["frameRate"] = { ideal: 2 }
   }
 
-  const cameraHeight = PomoConfigs.cameraHidden ? "1px" : "100%"
+  const cameraHeight = PomoConfigs.faceRecognition.showCameraPreview ? "100%" : "1px"
   const cameraReady = webcamRef.current ? (webcamRef.current.video.readyState !== undefined && webcamRef.current.video.readyState > 2) : false;
   return (
     <>
+      <Grid>
+        <GridCell span={12}>
+          {enableDetection && PomoConfigs.faceRecognition.showFaceRecognitionStatus ?
+            GetFaceDetectionStatus(cameraSupported, cameraReady, detected, humanML) : <></>}
+        </GridCell>
 
-      {enableDetection && PomoConfigs.faceRecognition.showFaceRecognitionStatus ? GetFaceDetectionStatus(cameraSupported, cameraReady, detected, humanML) : <></>}
-
-      {humanML ?
-        (
-          <Grid>
-            <GridCell span={12}>
-              <div className={
-                css`
+        {
+          humanML ?
+            (
+              <GridCell span={12}>
+                <div className={
+                  css`
               height: ${cameraHeight};
               width: ${cameraHeight};
               overflow: hidden;
             `
-              }>
-                <Webcam
-                  audio={false}
-                  ref={webcamRef}
-                  screenshotFormat="image/jpeg"
-                  videoConstraints={videoConstraints}
-                />
-              </div>
-            </GridCell>
-          </Grid>
-        ) : <></>}
+                }>
+                  <Webcam
+                    audio={false}
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    videoConstraints={videoConstraints}
+                  />
+                </div>
+              </GridCell>
+            ) : <></>
+        }
 
+        {
+          humanML && PomoConfigs.faceRecognition.showFaceRecognitionCanvas ?
+            <GridCell span={12}>
+              <canvas width="640px" height="480px" ref={canvasRef} />
+            </GridCell> : <></>
+        }
+      </Grid>
     </>
   )
 }

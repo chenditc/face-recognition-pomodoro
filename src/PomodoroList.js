@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Card } from 'antd';
 //import {Card} from '@rmwc/card';
 //import '@rmwc/card/styles';
@@ -8,6 +8,7 @@ import { Checkbox } from 'antd';
 import { ClockCircleOutlined, SmileOutlined } from '@ant-design/icons';
 
 import { css } from '@emotion/css'
+import { PomoConfigsContext } from './PomoConfigsContext'
 
 function formatSeconds(seconds) {
   const roundSeconds = Math.floor(seconds)
@@ -84,11 +85,11 @@ function PomodoroCard(props) {
 
 function PomodoroList(props) {
   const mergedTimeTable = props.mergedTimeTable
-  const [todayOnly, setTodayOnly] = useState(true)
+  const PomoConfigs = useContext(PomoConfigsContext)
 
   const showTimeSlots = mergedTimeTable
     .filter((record => {
-      if (todayOnly) {
+      if (PomoConfigs.history.onlyShowToday) {
         return (new Date(record.startTime).toDateString() === new Date().toDateString())
       }
       return true
@@ -105,7 +106,6 @@ function PomodoroList(props) {
         `
       }>
         <h3>Pomodoro History</h3>
-        <Checkbox checked={todayOnly} onChange={() => setTodayOnly(x => !x)}>Show Today Only </Checkbox>
       </div>
       <Timeline mode="left">
         {

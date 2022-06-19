@@ -130,13 +130,24 @@ function PomoConfigsDialog(props) {
                 </GridCell>
                 <GridCell>
                   <Switch
-                    defaultChecked={props.pomoConfigs.cameraHidden}
+                    defaultChecked={props.pomoConfigs.faceRecognition.showCameraPreview}
                     onChange={(event) => {
                       setNewPomoConfig(
-                        (oldConfig) => { oldConfig.cameraHidden = event.target.checked }
+                        (oldConfig) => { oldConfig.faceRecognition.showCameraPreview = event.target.checked }
                       )
                     }}
-                    label="Hide Live Camera Preview"
+                    label="Show Live Camera Preview"
+                  />
+                </GridCell>
+                <GridCell>
+                  <Switch
+                    defaultChecked={props.pomoConfigs.faceRecognition.showFaceRecognitionCanvas}
+                    onChange={(event) => {
+                      setNewPomoConfig(
+                        (oldConfig) => { oldConfig.faceRecognition.showFaceRecognitionCanvas = event.target.checked }
+                      )
+                    }}
+                    label="Show Face Detection Result"
                   />
                 </GridCell>
               </GridRow>
@@ -201,6 +212,28 @@ function PomoConfigsDialog(props) {
                       }}
                     />
                   </Tooltip>
+                </GridCell>
+                <GridCell>
+                  <Switch
+                    defaultChecked={props.pomoConfigs.history.showPomodoroHistory}
+                    onChange={(event) => {
+                      setNewPomoConfig(
+                        (oldConfig) => { oldConfig.history.showPomodoroHistory = event.target.checked }
+                      )
+                    }}
+                    label="Show Pomodoro History"
+                  />
+                </GridCell>
+                <GridCell>
+                  <Switch
+                    defaultChecked={props.pomoConfigs.history.onlyShowToday}
+                    onChange={(event) => {
+                      setNewPomoConfig(
+                        (oldConfig) => { oldConfig.history.onlyShowToday = event.target.checked }
+                      )
+                    }}
+                    label="Only Show Today's History"
+                  />
                 </GridCell>
               </GridRow>
             </GridCell>

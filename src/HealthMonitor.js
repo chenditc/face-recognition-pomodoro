@@ -17,7 +17,7 @@ function HealthMonitor() {
 
   const alertStudySeconds = PomoConfigs.alertStudySeconds;
   const alertRestSeconds = PomoConfigs.alertRestSeconds;
-  const maxLocalStorageTimeSlot = PomoConfigs.maxLocalStorageTimeSlot;
+  const maxLocalStorageTimeSlot = PomoConfigs.history.maxLocalStorageTimeSlot;
 
   function getDefaultTimeSlot(detected = true, pinnedSession = false, startTime = null) {
     const usedStateTime = startTime ? startTime : new Date().toJSON();
@@ -175,7 +175,10 @@ function HealthMonitor() {
           onFaceDetectionResult={onFaceDetectionResult}
         />
       </div>
-      <PomodoroList mergedTimeTable={mergedTimeTable} />
+      {
+        PomoConfigs.history.showPomodoroHistory ? <PomodoroList mergedTimeTable={mergedTimeTable} /> : <></>
+      }
+      
     </div>
   )
 }
