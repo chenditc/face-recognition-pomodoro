@@ -36,13 +36,13 @@ function GetFaceDetectionStatus(cameraSupported, cameraReady, faceDetected, huma
   const cameraStatus = cameraSupported ? cameraReady : cameraSupported;
   return (
     <Grid>
-      <GridCell span={4}>
+      <GridCell span={2}>
         <StatusMessage msg={cameraMessage} status={cameraStatus} />
       </GridCell>
-      <GridCell span={4}>
-        <StatusMessage msg={`Model loaded:`} status={modelLoaded} />
+      <GridCell span={2}>
+        <StatusMessage msg="Model loaded:" status={modelLoaded} />
       </GridCell>
-      <GridCell span={4}>
+      <GridCell span={2}>
         <StatusMessage msg="Face Detected:" status={faceDetected} />
       </GridCell>
     </Grid>
@@ -107,7 +107,6 @@ function PeriodicFaceDetection(props) {
 
     detectUsingModel().then(
       (detectionResult) => {
-        if (detectionResult) console.log(detectionResult.score)
         onFaceDetectionResult(detectionResult);
         setDetected(detectionResult);
       }
