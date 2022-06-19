@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState, useContext } from 'react';
 import Webcam from "react-webcam";
-import * as faceapi from 'face-api.js';
+//import * as faceapi from 'face-api.js';
+import Human from '@vladmandic/human'
+
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import CheckSquareFilled from '@ant-design/icons/CheckSquareFilled';
@@ -8,7 +10,9 @@ import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
 
 import { PomoConfigsContext } from './PomoConfigsContext';
 
-import * as tf from '@tensorflow/tfjs-core';
+import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
+import wasmPath from '../node_modules/@tensorflow/tfjs-backend-wasm/dist/tfjs-backend-wasm.wasm';
+
 
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
@@ -17,7 +21,7 @@ import '@rmwc/grid/styles';
 
 function StatusMessage(props) {
   return (
-    <Typography use="body2" tag="div">
+    <Typography use="body2" tag="div" className={css`text-align: center`}>
       {props.msg} {props.status ?
         <CheckSquareFilled style={{ color: "#1faa00" }} /> :
         <CloseSquareOutlined style={{ color: "#a30000" }} />
@@ -26,14 +30,17 @@ function StatusMessage(props) {
   )
 }
 
-function GetFaceDetectionStatus(cameraSupported, faceDetected, webGLSupported) {
+function GetFaceDetectionStatus(cameraSupported, cameraReady, faceDetected, humanML) {
+  const modelLoaded = humanML.current ? humanML.current.performance.loadModels > 0 : false;
+  const cameraMessage = cameraSupported ? "Camera Ready:" : "Camera Supported";
+  const cameraStatus = cameraSupported ? cameraReady : cameraSupported;
   return (
     <Grid>
       <GridCell span={4}>
-        <StatusMessage msg="Camera Supported:" status={cameraSupported} />
+        <StatusMessage msg={cameraMessage} status={cameraStatus} />
       </GridCell>
       <GridCell span={4}>
-        <StatusMessage msg="WebGL Supported:" status={webGLSupported} />
+        <StatusMessage msg={`Model loaded:`} status={modelLoaded} />
       </GridCell>
       <GridCell span={4}>
         <StatusMessage msg="Face Detected:" status={faceDetected} />
@@ -44,92 +51,54 @@ function GetFaceDetectionStatus(cameraSupported, faceDetected, webGLSupported) {
 
 function PeriodicFaceDetection(props) {
   const PomoConfigs = useContext(PomoConfigsContext)
-  const [modelsLoaded, setModelsLoaded] = useState(false);
   const webcamRef = useRef(null);
   const [detected, setDetected] = useState(false)
   const [cameraSupported] = useState('mediaDevices' in navigator);
-  const [webGLSupported, setWebGLSupported] = useState(false)
-  const [tfInitialized, setTfInitialized] = useState(false);
 
   const onFaceDetectionResult = props.onFaceDetectionResult
   const detectionInterval = PomoConfigs.faceRecognition.detectionInterval;
-  const modelInputSize = 128; //PomoConfigs.faceRecognition.modelInputSize;
   const scoreThreshold = PomoConfigs.faceRecognition.scoreThreshold;
   const enableDetection = PomoConfigs.enableDetection;
   const [detectionRunning, setDetectionRunning] = useState(false);
+  const humanML = useRef(null);
 
-  // Initialize TF and check web gl
+  // Initialize ML
   useEffect(() => {
-    tf.ready().then(
-      () => {
-        const backendStatus = tf.backend();
-        console.log(backendStatus)
-        var hasWebGL = false;
-        if (backendStatus.texData) {
-          hasWebGL = backendStatus.texData.dataMover.ENV.flags.HAS_WEBGL;
-
-        }
-        else {
-          hasWebGL = backendStatus.data.dataMover.ENV.flags.HAS_WEBGL;
-        }
-        console.log("TF backend", tf.getBackend())
-        setWebGLSupported(hasWebGL);
-        setTfInitialized(true);
-      }
-    )
-  }, [])
-
-  // Load ML models 
-  useEffect(() => {
-    if (!tfInitialized) return;
-
-    const loadModels = async () => {
-      const MODEL_URL = process.env.PUBLIC_URL + '/models';
-
-      const models = [
-        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-        //        faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-        //        faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL), // For face landmark
-        //        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)  // For face recognition
-      ]
-      if (webGLSupported) {
-        models.push(faceapi.nets.mtcnn.loadFromUri(MODEL_URL)
-        )
-      }
-      Promise.all(models).then(() => {
-        setModelsLoaded(true)
-      });
+    setWasmPaths(wasmPath)
+    const humanMLConfig = {
+      modelBasePath: `https://cdn.jsdelivr.net/npm/@vladmandic/human/models/`,
+      wasmPath: 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@3.9.0/dist/',
+      face: {
+        enabled: true,
+        emotion: { enabled: false },
+        antispoof: { enabled: false },
+        liveness: { enabled: false },
+        mesh: { enabled: false },
+        attention: { enabled: false },
+        iris: { enabled: false },
+        description: { enabled: false },
+      },
+      body: { enabled: false },
+      hand: { enabled: false },
+      object: { enabled: false },
+      gesture: { enabled: false }
     }
-    loadModels();
-  }, [webGLSupported, tfInitialized]);
+    humanML.current = new Human(humanMLConfig);
+    console.log("Human init:", humanML);
+  }, [])
 
   // Detect face every n seconds
   useInterval(() => {
     if (!enableDetection) return;
-    if (!modelsLoaded) return;
     if (detectionRunning) return;
+    if (!humanML.current) return;
 
     async function detectUsingModel() {
-      setDetectionRunning(true);
       try {
-        const tinyDetection = await faceapi.detectSingleFace(webcamRef.current.video, 
-          new faceapi.TinyFaceDetectorOptions({ scoreThreshold: scoreThreshold }))
-        if (tinyDetection !== undefined) {
-          tinyDetection.name = "Tiny"
-          return tinyDetection;
-        }
-  
-        if (!webGLSupported) return;
-  
-        const mtcnnDetection = await faceapi.detectSingleFace(webcamRef.current.video, new faceapi.MtcnnOptions(
-          {
-            minFaceSize: 20
-          }
-        ))
-        if (mtcnnDetection !== undefined) {
-          mtcnnDetection.name = "MTCNN"
-          return mtcnnDetection
-        }
+        setDetectionRunning(true);
+        const inputVideo = webcamRef.current.video;
+        const detectionResult = await humanML.current.detect(inputVideo)
+        return detectionResult.face.filter((x) => x.score > scoreThreshold).at(-1)
       }
       finally {
         setDetectionRunning(false);
@@ -138,50 +107,50 @@ function PeriodicFaceDetection(props) {
 
     detectUsingModel().then(
       (detectionResult) => {
+        if (detectionResult) console.log(detectionResult.score)
         onFaceDetectionResult(detectionResult);
-        setDetected(detectionResult)
+        setDetected(detectionResult);
       }
     )
 
   }, detectionInterval * 1000, true)
 
   const videoConstraintAbility = navigator.mediaDevices.getSupportedConstraints();
-  // Use 512 since Tiny model use 512 as default input, save some CPU 
   const videoConstraints = {
-    width: { ideal: 512 },
     facingMode: "user",
   }
   // Save bandwidth by reducing framerate
   if (videoConstraintAbility.frameRate && PomoConfigs.cameraHidden) {
-    videoConstraints["frameRate"] = { ideal: 1 }
+    videoConstraints["frameRate"] = { ideal: 5 }
   }
 
   const cameraHeight = PomoConfigs.cameraHidden ? "1px" : "100%"
+  const cameraReady = webcamRef.current ? (webcamRef.current.video.readyState !== undefined && webcamRef.current.video.readyState > 2) : false;
   return (
     <>
 
-      {enableDetection && PomoConfigs.faceRecognition.showFaceRecognitionStatus ? GetFaceDetectionStatus(cameraSupported, detected, webGLSupported) : <></>}
+      {enableDetection && PomoConfigs.faceRecognition.showFaceRecognitionStatus ? GetFaceDetectionStatus(cameraSupported, cameraReady, detected, humanML) : <></>}
 
-      {tfInitialized ?
+      {humanML ?
         (
-        <Grid>
-          <GridCell span={12}>
-          <div className={
-            css`
+          <Grid>
+            <GridCell span={12}>
+              <div className={
+                css`
               height: ${cameraHeight};
               width: ${cameraHeight};
               overflow: hidden;
             `
-            }>
-              <Webcam
-                audio={false}
-                ref={webcamRef}
-                screenshotFormat="image/jpeg"
-                videoConstraints={videoConstraints}
-              />
-            </div>
-          </GridCell>
-        </Grid>
+              }>
+                <Webcam
+                  audio={false}
+                  ref={webcamRef}
+                  screenshotFormat="image/jpeg"
+                  videoConstraints={videoConstraints}
+                />
+              </div>
+            </GridCell>
+          </Grid>
         ) : <></>}
 
     </>

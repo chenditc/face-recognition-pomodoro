@@ -7,9 +7,6 @@ import { notification } from 'antd';
 import produce from 'immer';
 import { useContext } from 'react';
 
-import { Elevation } from '@rmwc/elevation';
-import '@rmwc/elevation/styles';
-
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
 import PomodoroList from './PomodoroList';
@@ -169,6 +166,7 @@ function HealthMonitor() {
       <div className={
         css`
           display: flex;
+
           flex-wrap: wrap;
           justify-content: center;
         `

@@ -33,7 +33,7 @@ function IntroDialog(props) {
                   tag="div"
                   theme="textSecondaryOnBackground"
                 >
-                  This is a Pomodoro clock.
+                  This is a <span className={hightlightClassName}>Pomodoro clock</span>.
 
                   Unlike other Pomodoro Clock, it can automatically help you start
                   <span className={hightlightClassName}> a focus session </span>when the camera detected your face. When the camera 
@@ -73,6 +73,24 @@ function IntroDialog(props) {
                   theme="textSecondaryOnBackground"
                 >
                   There must be at least one user interaction to make notification works, so I take this opportunity to intro the tool.
+                </Typography>
+              </div>
+            </CardPrimaryAction>
+          </Card>
+          <div style={{padding: "10px"}} />
+          <Card>
+            <CardPrimaryAction>
+              <div style={{ padding: '0 1rem 1rem 1rem' }}>
+                <Typography use="headline6" tag="h2">
+                Will this slow down my computer or phone?
+                </Typography>
+                <Typography
+                  use="body1"
+                  tag="div"
+                  theme="textSecondaryOnBackground"
+                >
+                  No, this is very light weighted and takes only sub-millisecond on mobile GPU to detect your face. 
+                  Thanks to the <a href="https://arxiv.org/abs/1907.05047">BlazeFace</a> from Google.
                 </Typography>
               </div>
             </CardPrimaryAction>

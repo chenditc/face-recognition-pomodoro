@@ -10,7 +10,7 @@ const defaultPomoConfigs = {
   faceRecognition: {
     detectionInterval: 5,
     modelInputSize: 128,
-    scoreThreshold: 0.25,
+    scoreThreshold: 0.6,
     showFaceRecognitionStatus: true
   },
   cameraHidden: true,
