@@ -14,8 +14,7 @@ in the settings, the Pomodoro session will continue the session when you are bac
 
 ### Will this slow down my computer or phone?
 
-No, this is very light weighted and takes only milliseconds on mobile GPU to detect your face. 
-Thanks to the BlazeFace model from Google.
+Usually not, it leverage GPU to detect your face and just takes a few milliseconds.
 
 ## Available Scripts
 

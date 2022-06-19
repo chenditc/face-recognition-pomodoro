@@ -89,8 +89,7 @@ function IntroDialog(props) {
                   tag="div"
                   theme="textSecondaryOnBackground"
                 >
-                  No, this is very light weighted and takes only sub-millisecond on mobile GPU to detect your face. 
-                  Thanks to the <a href="https://arxiv.org/abs/1907.05047">BlazeFace</a> from Google.
+                  Usually not, it leverage GPU to detect your face and just takes a few milliseconds.
                 </Typography>
               </div>
             </CardPrimaryAction>
