@@ -121,7 +121,7 @@ function PeriodicFaceDetection(props) {
   }
   // Save bandwidth by reducing framerate
   if (videoConstraintAbility.frameRate && PomoConfigs.cameraHidden) {
-    videoConstraints["frameRate"] = { ideal: 5 }
+    videoConstraints["frameRate"] = { ideal: 2 }
   }
 
   const cameraHeight = PomoConfigs.cameraHidden ? "1px" : "100%"
