@@ -63,7 +63,16 @@ function PeriodicFaceDetection(props) {
     tf.ready().then(
       () => {
         const backendStatus = tf.backend();
-        const hasWebGL = backendStatus.data.dataMover.ENV.flags.HAS_WEBGL;
+        console.log(backendStatus)
+        var hasWebGL = false;
+        if (backendStatus.texData) {
+          hasWebGL = backendStatus.texData.dataMover.ENV.flags.HAS_WEBGL;
+
+        }
+        else {
+          hasWebGL = backendStatus.data.dataMover.ENV.flags.HAS_WEBGL;
+        }
+        console.log("TF backend", tf.getBackend())
         setWebGLSupported(hasWebGL);
         setTfInitialized(true);
       }
