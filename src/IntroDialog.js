@@ -4,13 +4,12 @@ import '@rmwc/dialog/styles';
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
 
-import { ListDivider } from '@rmwc/list';
-import '@rmwc/list/styles';
-
 import { Card, CardPrimaryAction} from '@rmwc/card';
 import '@rmwc/card/styles';
+import { css } from '@emotion/css'
 
 function IntroDialog(props) {
+  const hightlightClassName=css`font-weight: bold;`
   return (
     <>
       <Dialog
@@ -36,9 +35,9 @@ function IntroDialog(props) {
                 >
                   This is a Pomodoro clock.
 
-                  Unlike other Pomodoro Clock, it can automatically help you start 
-                  focus session when the camera detected your face. When the camera 
-                  no longer detect your face, it starts a rest session.
+                  Unlike other Pomodoro Clock, it can automatically help you start
+                  <span className={hightlightClassName}> a focus session </span>when the camera detected your face. When the camera 
+                  no longer detect your face, it starts <span className={hightlightClassName}> a rest session </span>.
                 </Typography>
               </div>
             </CardPrimaryAction>
@@ -48,15 +47,15 @@ function IntroDialog(props) {
             <CardPrimaryAction>
               <div style={{ padding: '0 1rem 1rem 1rem' }}>
                 <Typography use="headline6" tag="h2">
-                What if I left my seat but don't want to stop the Pomodoro session?
+                What if I left my camera but don't want to stop the Pomodoro session?
                 </Typography>
                 <Typography
                   use="body1"
                   tag="div"
                   theme="textSecondaryOnBackground"
                 >
-                  If the time of stepping away is less than "Max allowed missing time" 
-                  in the settings, it will continue the session when you are back.
+                  If the time of stepping away is less than <span className={hightlightClassName}> Max Allowed Missing Time </span>
+                  in the settings, the Pomodoro session will continue the session when you are back.
                 </Typography>
               </div>
             </CardPrimaryAction>
