@@ -1,5 +1,7 @@
 # Face Recognition Pomodoro
 
+Live demo: https://chenditc.github.io/face-recognition-pomodoro
+
 ## What is this?
 
 This is a **Pomodoro clock**.
