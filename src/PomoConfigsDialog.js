@@ -13,9 +13,6 @@ import '@rmwc/tooltip/styles';
 import { ListDivider } from '@rmwc/list';
 import '@rmwc/list/styles';
 
-import { Elevation } from '@rmwc/elevation';
-import '@rmwc/elevation/styles';
-
 import './PomoConfigsDialog.css'
 import { useImmer } from "use-immer";
 

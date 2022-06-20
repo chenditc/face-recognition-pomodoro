@@ -16,7 +16,7 @@ import wasmPath from '../node_modules/@tensorflow/tfjs-backend-wasm/dist/tfjs-ba
 
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
-import { Grid, GridRow, GridCell } from '@rmwc/grid'
+import { Grid, GridCell } from '@rmwc/grid'
 import '@rmwc/grid/styles';
 
 function StatusMessage(props) {

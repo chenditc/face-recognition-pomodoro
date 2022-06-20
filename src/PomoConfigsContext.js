@@ -5,7 +5,7 @@ const defaultPomoConfigs = {
   alertRestSeconds: 5 * 60,
   notificationIntervalSeconds: 60,
   notificationIntervalMultiplier: 2,
-  tempMissingSeconds: 30,
+  tempMissingSeconds: 60,
   history: {
     maxLocalStorageTimeSlot: 100,
     showPomodoroHistory: true,
