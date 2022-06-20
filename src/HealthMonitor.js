@@ -113,7 +113,10 @@ function HealthMonitor() {
 
       // If work time not refreshed for some time, start a new session, as computer lock will prevent camera show
       if (draftMergeTable.at(-1).detected && (new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds) {
-        draftMergeTable.push(getDefaultTimeSlot(draftMergeTable.at(-1).detected, false, new Date()))
+        // Add a rest session
+        draftMergeTable.push(getDefaultTimeSlot(false, false, draftMergeTable.at(-1).endTime))
+        // Add a work session
+        draftMergeTable.push(getDefaultTimeSlot(true, false, new Date()))
         return;
       }
 
