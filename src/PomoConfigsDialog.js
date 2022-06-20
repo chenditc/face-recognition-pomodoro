@@ -203,11 +203,11 @@ function PomoConfigsDialog(props) {
                     <TextField required label="Max pomodoro history entries kepted" type="number"
                       resizeable={true}
                       pattern="[0-9]*" suffix="entries"
-                      defaultValue={props.pomoConfigs.maxLocalStorageTimeSlot}
+                      defaultValue={props.pomoConfigs.history.maxLocalStorageTimeSlot}
                       onChange={(event) => {
                         if (!event.target.validity.valid) return
                         setNewPomoConfig(
-                          (oldConfig) => { oldConfig.maxLocalStorageTimeSlot = parseInt(event.target.value) }
+                          (oldConfig) => { oldConfig.history.maxLocalStorageTimeSlot = parseInt(event.target.value) }
                         )
                       }}
                     />
