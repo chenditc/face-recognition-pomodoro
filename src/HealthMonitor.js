@@ -3,7 +3,6 @@ import useInterval from 'use-interval'
 import { css } from '@emotion/css'
 import { useLocalStorageState } from 'ahooks';
 import useSound from 'use-sound';
-import { notification } from 'antd';
 import produce from 'immer';
 import { useContext } from 'react';
 
@@ -14,7 +13,8 @@ import '@rmwc/snackbar/styles';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
-import PomodoroList from './PomodoroList';
+import PomodoroList from './PomodoroHistory/PomodoroList';
+import PomodoroHistoryTimeChart from './PomodoroHistory/PomodoroTimeChart';
 import { PomoConfigsContext } from './PomoConfigsContext'
 
 function HealthMonitor() {
@@ -87,10 +87,7 @@ function HealthMonitor() {
     if (webNotificationSupported && Notification.permission === "granted") {
       new Notification(message);
     }
-    notification.open({
-      message: message,
-      duration: 3,
-    });
+
     setSnackBarOpen(true);
     setSnackBarMessage(message);
 
@@ -169,6 +166,18 @@ function HealthMonitor() {
       }
       `
     }>
+      <Snackbar
+        open={snackbarOpen}
+        onClose={() => setSnackBarOpen(false)}
+        message={snackbarMessage}
+        dismissesOnAction
+        action={
+          <SnackbarAction
+            label="Dismiss"
+            onClick={() => console.log('Dismiss notification')}
+          />
+        }
+      />
       <Grid>
         <GridCell span={12}>
           <p className={
@@ -186,31 +195,22 @@ function HealthMonitor() {
           }> {statusMessage} </p>
         </GridCell>
         <GridCell span={12}>
-        <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
+          <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
         </GridCell>
         <GridCell span={12}>
-        <PeriodicFaceDetection
-          onFaceDetectionResult={onFaceDetectionResult}
-        />
-        </GridCell>
-        <GridCell span={12}>
-          {
-            PomoConfigs.history.showPomodoroHistory ? <PomodoroList mergedTimeTable={mergedTimeTable} /> : <></>
-          }
-        </GridCell>
-      </Grid>      
-      <Snackbar
-        open={snackbarOpen}
-        onClose={() => setSnackBarOpen(false)}
-        message={snackbarMessage}
-        dismissesOnAction
-        action={
-          <SnackbarAction
-            label="Dismiss"
-            onClick={() => console.log('Dismiss notification')}
+          <PeriodicFaceDetection
+            onFaceDetectionResult={onFaceDetectionResult}
           />
+        </GridCell>
+        {
+          PomoConfigs.history.showPomodoroHistory ?
+            <GridCell span={12}>
+              <PomodoroHistoryTimeChart mergedTimeTable={mergedTimeTable} />
+              <PomodoroList mergedTimeTable={mergedTimeTable} />
+            </GridCell> : <></>
         }
-      />
+      </Grid>
+
     </div>
   )
 }

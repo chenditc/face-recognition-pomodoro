@@ -7,7 +7,7 @@ import { Timeline } from 'antd';
 import { ClockCircleOutlined, SmileOutlined } from '@ant-design/icons';
 
 import { css } from '@emotion/css'
-import { PomoConfigsContext } from './PomoConfigsContext'
+import { PomoConfigsContext } from '../PomoConfigsContext'
 
 function formatSeconds(seconds) {
   const roundSeconds = Math.floor(seconds)
