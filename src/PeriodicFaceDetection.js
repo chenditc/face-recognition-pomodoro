@@ -10,9 +10,6 @@ import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
 
 import { PomoConfigsContext } from './PomoConfigsContext';
 
-import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
-import wasmPath from '../node_modules/@tensorflow/tfjs-backend-wasm/dist/tfjs-backend-wasm.wasm';
-
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
 import { Grid, GridCell } from '@rmwc/grid'
@@ -65,10 +62,8 @@ function PeriodicFaceDetection(props) {
 
   // Initialize ML
   useEffect(() => {
-    setWasmPaths(wasmPath)
     const humanMLConfig = {
       modelBasePath: `https://cdn.jsdelivr.net/npm/@vladmandic/human/models/`,
-      wasmPath: 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@3.9.0/dist/',
       face: {
         enabled: true,
         emotion: { enabled: false },
@@ -82,11 +77,12 @@ function PeriodicFaceDetection(props) {
       body: { enabled: false },
       hand: { enabled: false },
       object: { enabled: false },
-      gesture: { enabled: false }
+      gesture: { enabled: false },
+      debug: true
     }
     humanML.current = new Human(humanMLConfig);
-    humanML.current.warmup(humanMLConfig);
-    console.log("Human init:", humanML);
+    humanML.current.load(humanMLConfig);
+    console.log("Human init", humanML.current);
   }, [])
 
   // Detect face every n seconds
