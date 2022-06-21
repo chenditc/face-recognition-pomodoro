@@ -9,6 +9,8 @@ import { useContext } from 'react';
 
 import { Grid, GridCell } from '@rmwc/grid'
 import '@rmwc/grid/styles';
+import { Snackbar, SnackbarAction } from '@rmwc/snackbar';
+import '@rmwc/snackbar/styles';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
@@ -22,9 +24,12 @@ function HealthMonitor() {
   const alertRestSeconds = PomoConfigs.alertRestSeconds;
   const maxLocalStorageTimeSlot = PomoConfigs.history.maxLocalStorageTimeSlot;
 
+  const [snackbarMessage, setSnackBarMessage] = useState("");
+  const [snackbarOpen, setSnackBarOpen] = useState(false);
+
   function getDefaultTimeSlot(detected = true, pinnedSession = false, startTime = null) {
     const usedStateTime = startTime ? startTime : new Date().toJSON();
-    const timePeriod = Math.floot((new Date() - startTime) / 1000);
+    const timePeriod = Math.floor((new Date() - startTime) / 1000);
     return {
       startTime: usedStateTime,
       endTime: new Date().toJSON(),
@@ -86,6 +91,8 @@ function HealthMonitor() {
       message: message,
       duration: 3,
     });
+    setSnackBarOpen(true);
+    setSnackBarMessage(message);
 
     const nextSendInterval = notificationHistory[message] ?
       notificationHistory[message].nextSendInterval * 2 :
@@ -192,6 +199,18 @@ function HealthMonitor() {
           }
         </GridCell>
       </Grid>      
+      <Snackbar
+        open={snackbarOpen}
+        onClose={() => setSnackBarOpen(false)}
+        message={snackbarMessage}
+        dismissesOnAction
+        action={
+          <SnackbarAction
+            label="Dismiss"
+            onClick={() => console.log('Dismiss notification')}
+          />
+        }
+      />
     </div>
   )
 }
