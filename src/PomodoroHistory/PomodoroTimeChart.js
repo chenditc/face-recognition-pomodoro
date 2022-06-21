@@ -1,5 +1,6 @@
 import Chart from "react-apexcharts";
-import { useWhyDidYouUpdate } from 'ahooks';
+import {PomodoroCard} from "./PomodoroTimeCard";
+import {renderToString} from 'react-dom/server'
 
 function PomodoroHistoryTimeChart(props) {
     const options = {
@@ -13,11 +14,19 @@ function PomodoroHistoryTimeChart(props) {
             "#b0003a"
         ],
         xaxis: {
-            type: 'datetime'
+            type: 'datetime',
+            labels: {
+                datetimeUTC: false
+            }
+        },
+        tooltip: {
+            custom: function(opts) {
+              const timeSlotInfo = opts.w.config.series[opts.seriesIndex].data[opts.dataPointIndex].info;
+              const pomoCard = <PomodoroCard record={timeSlotInfo} />
+              return renderToString(pomoCard)
+            }
         }
     };
-
-    useWhyDidYouUpdate('PomodoroHistoryTimeChart', { ...props });
 
     const dataSeries = props.mergedTimeTable.filter(
         (timeSlot) => (new Date(timeSlot.startTime).toDateString() === new Date().toDateString())

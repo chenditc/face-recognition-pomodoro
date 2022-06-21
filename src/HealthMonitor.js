@@ -29,7 +29,7 @@ function HealthMonitor() {
 
   function getDefaultTimeSlot(detected = true, pinnedSession = false, startTime = null) {
     const usedStateTime = startTime ? startTime : new Date().toJSON();
-    const timePeriod = Math.floor((new Date() - startTime) / 1000);
+    const timePeriod = Math.floor((new Date() - new Date(usedStateTime)) / 1000);
     return {
       startTime: usedStateTime,
       endTime: new Date().toJSON(),
