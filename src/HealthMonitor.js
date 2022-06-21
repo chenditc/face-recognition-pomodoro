@@ -148,7 +148,8 @@ function HealthMonitor() {
       sendNotification("休息够啦")
       return;
     }
-    if (timePeriod > PomoConfigs.tempMissingSeconds) {
+    // Only change when there is some item, prevent rerender
+    if (timePeriod > PomoConfigs.tempMissingSeconds && notificationHistory.length > 0) {
       setNotificationHistory({})
     }
   }, 500, true)
