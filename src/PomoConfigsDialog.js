@@ -22,6 +22,7 @@ function PomoConfigsDialog(props) {
   return (
     <>
       <Dialog
+        style={{zIndex: 15}}
         open={props.open}
         onClose={(event) => {
           if (event.target.action === "confirm") {

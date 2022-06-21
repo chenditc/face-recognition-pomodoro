@@ -13,6 +13,7 @@ function IntroDialog(props) {
   return (
     <>
       <Dialog
+        style={{zIndex: 15}}
         open={props.open}
         onClose={(event) => {
           props.onClose()

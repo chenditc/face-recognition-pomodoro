@@ -66,14 +66,12 @@ function FaceRecognitionPomo() {
         <IntroDialog 
           open={openIntroDialog}
           onClose={onIntroDialogClose} 
-          style={{zIndex: 15}}
           />
         <PomoConfigsDialog 
           open={openConfigDialog} 
           onClose={() => setOpenConfigDialog(false)} 
           pomoConfigs={pomoConfigs}
           setPomoConfigs={setPomoConfigs}
-          style={{zIndex: 15}}
         />
 
         <PomoConfigsContext.Provider value={pomoConfigs}>
