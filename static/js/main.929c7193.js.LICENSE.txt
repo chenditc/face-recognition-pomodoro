@@ -10,6 +10,12 @@ object-assign
   http://jedwatson.github.io/classnames
 */
 
+/*!
+ * ApexCharts v3.35.3
+ * (c) 2018-2022 ApexCharts
+ * Released under the MIT License.
+ */
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -40,6 +46,14 @@ PERFORMANCE OF THIS SOFTWARE.
 /*! react */
 
 /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
+
+/*! svg.draggable.js - v2.2.2 - 2019-01-08
+* https://github.com/svgdotjs/svg.draggable.js
+* Copyright (c) 2019 Wout Fierens; Licensed MIT */
+
+/*! svg.filter.js - v2.0.2 - 2016-02-24
+* https://github.com/wout/svg.filter.js
+* Copyright (c) 2016 Wout Fierens; Licensed MIT */
 
 /*!******************************!*\
         !*** ./src/react-webcam.tsx ***!
