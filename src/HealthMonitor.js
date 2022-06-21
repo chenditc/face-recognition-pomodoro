@@ -24,12 +24,12 @@ function HealthMonitor() {
 
   function getDefaultTimeSlot(detected = true, pinnedSession = false, startTime = null) {
     const usedStateTime = startTime ? startTime : new Date().toJSON();
-
+    const timePeriod = Math.floot((new Date() - startTime) / 1000);
     return {
       startTime: usedStateTime,
       endTime: new Date().toJSON(),
       detected: detected,
-      timePeriod: 0,
+      timePeriod: timePeriod,
       pinnedSession: pinnedSession
     }
   }
