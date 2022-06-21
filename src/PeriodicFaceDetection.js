@@ -85,12 +85,14 @@ function PeriodicFaceDetection(props) {
       gesture: { enabled: false }
     }
     humanML.current = new Human(humanMLConfig);
+    humanML.current.warmup(humanMLConfig);
     console.log("Human init:", humanML);
   }, [])
 
   // Detect face every n seconds
   useInterval(() => {
     if (!enableDetection) return;
+    if (!cameraReady) return;
     if (detectionRunning) return;
     if (!humanML.current) return;
 
@@ -120,15 +122,18 @@ function PeriodicFaceDetection(props) {
     detectUsingModel()
   }, detectionInterval * 1000, true)
 
-  const videoConstraintAbility = navigator.mediaDevices.getSupportedConstraints();
+  
   const videoConstraints = {
     width: { ideal: 640 },
     height: { ideal: 480 },
     facingMode: "user",
   }
   // Save bandwidth by reducing framerate
-  if (videoConstraintAbility.frameRate && !PomoConfigs.faceRecognition.showCameraPreview) {
-    videoConstraints["frameRate"] = { ideal: 2 }
+  if (enableDetection && !PomoConfigs.faceRecognition.showCameraPreview && navigator.mediaDevices.getSupportedConstraints) {
+    const videoConstraintAbility = navigator.mediaDevices.getSupportedConstraints();
+    if (videoConstraintAbility.frameRate) {
+      videoConstraints["frameRate"] = { ideal: 2 }
+    }
   }
 
   const cameraHeight = PomoConfigs.faceRecognition.showCameraPreview ? "100%" : "1px"
@@ -146,7 +151,7 @@ function PeriodicFaceDetection(props) {
         </GridCell>
 
         {
-          humanML ?
+          enableDetection ?
             (
               <GridCell span={12}>
                 <div className={
@@ -168,7 +173,7 @@ function PeriodicFaceDetection(props) {
         }
 
         {
-          humanML && PomoConfigs.faceRecognition.showFaceRecognitionCanvas ?
+          enableDetection && humanML && PomoConfigs.faceRecognition.showFaceRecognitionCanvas ?
             <GridCell span={12}>
               <canvas width="640px" height="480px" ref={canvasRef} />
             </GridCell> : <></>

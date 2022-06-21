@@ -38,6 +38,8 @@ function IntroDialog(props) {
                   Unlike other Pomodoro Clock, it can automatically help you start
                   <span className={hightlightClassName}> a focus session </span>when the camera detected your face. When the camera 
                   no longer detect your face, it starts <span className={hightlightClassName}> a rest session </span>.
+
+                  We will request camera permission and notification permission later, please click allow around the browser's url.
                 </Typography>
               </div>
             </CardPrimaryAction>

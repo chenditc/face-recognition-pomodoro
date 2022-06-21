@@ -8,6 +8,7 @@ import { TopAppBar, TopAppBarRow, TopAppBarSection, TopAppBarActionItem, TopAppB
 import { ThemeProvider } from '@rmwc/theme'
 import { Portal } from '@rmwc/base';
 import { css } from "@emotion/css";
+import {produce } from 'immer';
 
 import '@rmwc/theme/styles';
 import '@rmwc/top-app-bar/styles';
@@ -23,6 +24,17 @@ function FaceRecognitionPomo() {
 
   const [openConfigDialog, setOpenConfigDialog] = useState(false);
   const [openIntroDialog, setOpenIntroDialog] = useState(true);
+
+  function onIntroDialogClose() {
+    setOpenIntroDialog(false)
+    setPomoConfigs(produce(
+      (oldConfig) => {
+        oldConfig.enableDetection = true;
+        oldConfig.enableNotification = true;
+      }
+    ))
+  }
+
   return (
     <>
       <ThemeProvider
@@ -53,7 +65,7 @@ function FaceRecognitionPomo() {
 
         <IntroDialog 
           open={openIntroDialog}
-          onClose={() => setOpenIntroDialog(false)} 
+          onClose={onIntroDialogClose} 
           />
         <PomoConfigsDialog 
           open={openConfigDialog} 

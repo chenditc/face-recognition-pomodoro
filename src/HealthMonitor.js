@@ -65,8 +65,10 @@ function HealthMonitor() {
       console.log("This browser does not support desktop notification")
       return;
     }
-    Notification.requestPermission()
-  }, [])
+    if (PomoConfigs.enableNotification) {
+      Notification.requestPermission();
+    }
+  }, [PomoConfigs.enableNotification])
 
   function sendNotification(message) {
     if (notificationHistory[message] && (
