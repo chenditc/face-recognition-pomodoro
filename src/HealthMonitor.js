@@ -206,6 +206,7 @@ function HealthMonitor() {
         {
           PomoConfigs.history.showPomodoroHistory ?
             <GridCell span={12}>
+                      <h3>Pomodoro History</h3>
               <PomodoroHistoryTimeChart mergedTimeTable={mergedTimeTable} />
               <PomodoroList mergedTimeTable={mergedTimeTable} />
             </GridCell> : <></>

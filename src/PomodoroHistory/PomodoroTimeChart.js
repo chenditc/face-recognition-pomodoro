@@ -25,7 +25,7 @@ function PomodoroHistoryTimeChart(props) {
               const pomoCard = <PomodoroCard record={timeSlotInfo} />
               return renderToString(pomoCard)
             }
-        }
+        },
     };
 
     const dataSeries = props.mergedTimeTable.filter(
@@ -33,7 +33,7 @@ function PomodoroHistoryTimeChart(props) {
     ).map(
         (timeSlot) => {
             return {
-            x: "Session",
+            x: "Time Line",
             y: [
               new Date(timeSlot.startTime).getTime(),
               new Date(timeSlot.endTime).getTime()

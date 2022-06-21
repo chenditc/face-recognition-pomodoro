@@ -1,11 +1,7 @@
 import { useContext } from 'react';
-//import {Card} from '@rmwc/card';
-//import '@rmwc/card/styles';
-
 import { Timeline } from 'antd';
 import { ClockCircleOutlined, SmileOutlined } from '@ant-design/icons';
 
-import { css } from '@emotion/css'
 import { PomoConfigsContext } from '../PomoConfigsContext'
 import { formatSeconds, PomodoroCard } from './PomodoroTimeCard';
 
@@ -23,17 +19,6 @@ function PomodoroList(props) {
     }))
 
   return (
-    <div>
-      <div className={
-        css`
-          display: flex;
-          justify-content: space-between;
-          margin: 5px auto;
-          flex-wrap: wrap;
-        `
-      }>
-        <h3>Pomodoro History</h3>
-      </div>
       <Timeline mode="left">
         {
           showTimeSlots
@@ -55,7 +40,6 @@ function PomodoroList(props) {
             }).reverse()
         }
       </Timeline>
-    </div>
   )
 }
 
