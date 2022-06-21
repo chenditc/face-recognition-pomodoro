@@ -64,6 +64,7 @@ function PeriodicFaceDetection(props) {
   useEffect(() => {
     const humanMLConfig = {
       modelBasePath: `https://cdn.jsdelivr.net/npm/@vladmandic/human/models/`,
+      wasmPath: "/face-recognition-pomodoro/models/",
       face: {
         enabled: true,
         emotion: { enabled: false },
@@ -81,8 +82,11 @@ function PeriodicFaceDetection(props) {
       debug: true
     }
     humanML.current = new Human(humanMLConfig);
-    humanML.current.load(humanMLConfig);
-    console.log("Human init", humanML.current);
+    humanML.current.init(humanMLConfig).then(() => {
+      humanML.current.load(humanMLConfig);
+      console.log("Human init", humanML.current);
+    })
+
   }, [])
 
   // Detect face every n seconds
