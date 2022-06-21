@@ -46,7 +46,7 @@ function FaceRecognitionPomo() {
         }}
       >
         <Portal />
-        <TopAppBar style={{zIndex: 10}}>
+        <TopAppBar style={{zIndex: 15}}>
           <TopAppBarRow>
             <TopAppBarSection alignStart>
               <TopAppBarActionItem icon="help" onClick={() => setOpenIntroDialog(true)} />
@@ -66,12 +66,14 @@ function FaceRecognitionPomo() {
         <IntroDialog 
           open={openIntroDialog}
           onClose={onIntroDialogClose} 
+          style={{zIndex: 15}}
           />
         <PomoConfigsDialog 
           open={openConfigDialog} 
           onClose={() => setOpenConfigDialog(false)} 
           pomoConfigs={pomoConfigs}
           setPomoConfigs={setPomoConfigs}
+          style={{zIndex: 15}}
         />
 
         <PomoConfigsContext.Provider value={pomoConfigs}>
