@@ -7,6 +7,9 @@ import { notification } from 'antd';
 import produce from 'immer';
 import { useContext } from 'react';
 
+import { Grid, GridCell } from '@rmwc/grid'
+import '@rmwc/grid/styles';
+
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from './ReactFlipClock.js'
 import PomodoroList from './PomodoroList';
@@ -147,7 +150,6 @@ function HealthMonitor() {
   const statusMessage = lastTimeSlot.detected ? "WORKING" : "REST";
 
   return (
-
     <div className={
       css`
       margin: 0 15px;
@@ -158,37 +160,36 @@ function HealthMonitor() {
       }
       `
     }>
-        <p className={
-          css`
-          font-size: 20vw;
-          margin: 0 auto;
-          text-align: center;
-          @media (min-width: 700px) {
-            font-size: 140px;
-          }
-          @media (max-width: 350px) {
-            font-size: 75px;
-          }
-        `
-        }> {statusMessage} </p>
-
+      <Grid>
+        <GridCell span={12}>
+          <p className={
+            css`
+            font-size: 20vw;
+            margin: 0 auto;
+            text-align: center;
+            @media (min-width: 700px) {
+              font-size: 140px;
+            }
+            @media (max-width: 350px) {
+              font-size: 75px;
+            }
+          `
+          }> {statusMessage} </p>
+        </GridCell>
+        <GridCell span={12}>
         <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
-      <div className={
-        css`
-          display: flex;
-
-          flex-wrap: wrap;
-          justify-content: center;
-        `
-      }>
+        </GridCell>
+        <GridCell span={12}>
         <PeriodicFaceDetection
           onFaceDetectionResult={onFaceDetectionResult}
         />
-      </div>
-      {
-        PomoConfigs.history.showPomodoroHistory ? <PomodoroList mergedTimeTable={mergedTimeTable} /> : <></>
-      }
-      
+        </GridCell>
+        <GridCell span={12}>
+          {
+            PomoConfigs.history.showPomodoroHistory ? <PomodoroList mergedTimeTable={mergedTimeTable} /> : <></>
+          }
+        </GridCell>
+      </Grid>      
     </div>
   )
 }

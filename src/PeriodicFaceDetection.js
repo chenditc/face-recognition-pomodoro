@@ -13,11 +13,12 @@ import { PomoConfigsContext } from './PomoConfigsContext';
 import { setWasmPaths } from '@tensorflow/tfjs-backend-wasm';
 import wasmPath from '../node_modules/@tensorflow/tfjs-backend-wasm/dist/tfjs-backend-wasm.wasm';
 
-
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
 import { Grid, GridCell } from '@rmwc/grid'
 import '@rmwc/grid/styles';
+import { LinearProgress } from '@rmwc/linear-progress';
+import '@rmwc/linear-progress/styles';
 
 function StatusMessage(props) {
   return (
@@ -30,8 +31,7 @@ function StatusMessage(props) {
   )
 }
 
-function GetFaceDetectionStatus(cameraSupported, cameraReady, faceDetected, humanML) {
-  const models = humanML.current ? Object.keys(humanML.current.models).filter((model) => (humanML.current.models[model] !== null)).length : 0;
+function GetFaceDetectionStatus(cameraSupported, cameraReady, faceDetected, loadedModelCount) {
   const cameraMessage = cameraSupported ? "Camera Ready:" : "Camera Supported";
   const cameraStatus = cameraSupported ? cameraReady : cameraSupported;
   return (
@@ -40,7 +40,7 @@ function GetFaceDetectionStatus(cameraSupported, cameraReady, faceDetected, huma
         <StatusMessage msg={cameraMessage} status={cameraStatus} />
       </GridCell>
       <GridCell desktop={4} span={2} phone={4}>
-        <StatusMessage msg="Model loaded:" status={models > 0} />
+        <StatusMessage msg="Model loaded:" status={loadedModelCount > 1} />
       </GridCell>
       <GridCell desktop={4} span={2} phone={4}>
         <StatusMessage msg="Face Detected:" status={faceDetected} />
@@ -133,12 +133,16 @@ function PeriodicFaceDetection(props) {
 
   const cameraHeight = PomoConfigs.faceRecognition.showCameraPreview ? "100%" : "1px"
   const cameraReady = webcamRef.current ? (webcamRef.current.video.readyState !== undefined && webcamRef.current.video.readyState > 2) : false;
+  const loadedModelCount = humanML.current ? Object.keys(humanML.current.models).filter((model) => (humanML.current.models[model] !== null)).length : 0;
+  const currentProgress = cameraSupported * 0.1 + cameraReady * 0.4 + 0.5 * (loadedModelCount / 2);
   return (
     <>
       <Grid>
+      
         <GridCell span={12}>
+          <LinearProgress closed={currentProgress >= 1} progress={currentProgress} />
           {enableDetection && PomoConfigs.faceRecognition.showFaceRecognitionStatus ?
-            GetFaceDetectionStatus(cameraSupported, cameraReady, detected, humanML) : <></>}
+            GetFaceDetectionStatus(cameraSupported, cameraReady, detected, loadedModelCount) : <></>}
         </GridCell>
 
         {

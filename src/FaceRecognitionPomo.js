@@ -10,7 +10,6 @@ import { Portal } from '@rmwc/base';
 import { css } from "@emotion/css";
 
 import '@rmwc/theme/styles';
-import '@rmwc/typography/styles';
 import '@rmwc/top-app-bar/styles';
 import '@rmwc/icon/styles';
 
