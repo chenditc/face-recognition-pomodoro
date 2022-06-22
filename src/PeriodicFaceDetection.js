@@ -16,7 +16,6 @@ import { Grid, GridCell } from '@rmwc/grid'
 import '@rmwc/grid/styles';
 import { LinearProgress } from '@rmwc/linear-progress';
 import '@rmwc/linear-progress/styles';
-import { set } from 'immer/dist/internal';
 
 function StatusMessage(props) {
   return (
