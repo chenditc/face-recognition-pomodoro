@@ -137,21 +137,27 @@ function HealthMonitor() {
   }
 
   function deleteRestSession(startTime) {
-    const NewMergedTimeTable = mergedTimeTable.filter((timeSlot) => {
-      return timeSlot.startTime !== startTime
-    }).reduce((prevList, currentTimeSlot) => {
-      if (prevList.at(-1) 
-      && prevList.at(-1).endTime === currentTimeSlot.startTime 
-      && prevList.at(-1).detected === currentTimeSlot.detected) {
-        // Merge slots
-        prevList.at(-1).endTime = currentTimeSlot.endTime;
-        prevList.at(-1).timePeriod = (new Date(prevList.at(-1).endTime) - new Date(prevList.at(-1).startTime)) / 1000;
-        return prevList; 
-      }
-      prevList.push(currentTimeSlot);
-      return prevList;
-    }, [])
-    setMergedTimeTable(NewMergedTimeTable);
+    setMergedTimeTable(
+      mergedTimeTable.reduce((prevList, currentTimeSlot) => {
+        const newList = prevList.slice();
+        if ((currentTimeSlot.startTime === startTime) || 
+            (prevList.at(-1) 
+            && prevList.at(-1).endTime === currentTimeSlot.startTime 
+            && prevList.at(-1).detected === currentTimeSlot.detected)) {
+          // Merge slots
+          const newObject = {
+            ...newList.at(-1),
+            endTime: currentTimeSlot.endTime,
+            timePeriod: (new Date(prevList.at(-1).endTime) - new Date(prevList.at(-1).startTime)) / 1000
+          }
+          newList.pop()
+          newList.push(newObject);
+          return newList; 
+        }
+        newList.push(currentTimeSlot);
+        return newList;
+      }, [])
+    )
   }
 
   useInterval(() => {

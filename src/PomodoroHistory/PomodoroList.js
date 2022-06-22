@@ -7,6 +7,9 @@ import { formatSeconds, PomodoroCard } from './PomodoroTimeCard';
 
 import { Button } from '@rmwc/button';
 import '@rmwc/button/styles';
+import { Tooltip } from '@rmwc/tooltip';
+import '@rmwc/tooltip/styles';
+
 
 import {css} from '@emotion/css'
 
@@ -16,7 +19,7 @@ function RestTimeLineItem(props) {
   const onDeleteRestSession = props.onDeleteRestSession;
 
   return (
-    <Timeline.Item color="green" dot={<SmileOutlined />} key={index}>
+    <Timeline.Item color="green" dot={<SmileOutlined />} key={record.startTime}>
       <div className={
         css`
           display: flex;
@@ -24,7 +27,9 @@ function RestTimeLineItem(props) {
         `
       }>
         <p> Rest for {formatSeconds(record.timePeriod)} </p>
-        <Button label="Remove" onClick={() => { onDeleteRestSession(record.startTime) }} />
+        <Tooltip content="Remove this session, and merge adjacent session." showArrow>
+          <Button label="Remove" onClick={() => { onDeleteRestSession(record.startTime) }} />
+        </Tooltip>
       </div>
     </Timeline.Item>
   )
@@ -46,7 +51,7 @@ function PomodoroList(props) {
   const pomodoroList = showTimeSlots.filter((x) => x.detected).map(
     (record, index) => {
       return (
-        <Timeline.Item record={record} dot={<ClockCircleOutlined />} key={index}>
+        <Timeline.Item record={record} dot={<ClockCircleOutlined />} key={record.startTime}>
           <PomodoroCard record={record} index={index + 1} />
         </Timeline.Item>
       )
