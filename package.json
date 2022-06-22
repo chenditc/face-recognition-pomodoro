@@ -18,6 +18,7 @@
     "immer": "^9.0.15",
     "jquery": "^3.6.0",
     "material-components-web": "^6.0.0",
+    "moment": "^2.29.3",
     "react": "^18.1.0",
     "react-apexcharts": "^1.4.0",
     "react-collapse": "^5.1.1",

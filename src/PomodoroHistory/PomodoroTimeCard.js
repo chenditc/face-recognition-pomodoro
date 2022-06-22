@@ -63,10 +63,10 @@ export function PomodoroCard(props) {
             css`
               font-size: 1.5em;
               font-weight: bold;
-              margin: 0;
+              margin: 0 0 0 10px;
             `
           }>
-            From {new Date(record.startTime).toLocaleTimeString()}
+            {new Date(record.startTime).toLocaleTimeString().slice(0, 5)} - {new Date(record.endTime).toLocaleTimeString().slice(0, 5)}
           </p>
           </div>
   

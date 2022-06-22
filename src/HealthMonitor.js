@@ -136,6 +136,24 @@ function HealthMonitor() {
     setMergedTimeTable(NewMergedTimeTable);
   }
 
+  function deleteRestSession(startTime) {
+    const NewMergedTimeTable = mergedTimeTable.filter((timeSlot) => {
+      return timeSlot.startTime !== startTime
+    }).reduce((prevList, currentTimeSlot) => {
+      if (prevList.at(-1) 
+      && prevList.at(-1).endTime === currentTimeSlot.startTime 
+      && prevList.at(-1).detected === currentTimeSlot.detected) {
+        // Merge slots
+        prevList.at(-1).endTime = currentTimeSlot.endTime;
+        prevList.at(-1).timePeriod = (new Date(prevList.at(-1).endTime) - new Date(prevList.at(-1).startTime)) / 1000;
+        return prevList; 
+      }
+      prevList.push(currentTimeSlot);
+      return prevList;
+    }, [])
+    setMergedTimeTable(NewMergedTimeTable);
+  }
+
   useInterval(() => {
     // Update continue face time and continue rest time
     const timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
@@ -208,7 +226,7 @@ function HealthMonitor() {
             <GridCell span={12}>
                       <h3>Pomodoro History</h3>
               <PomodoroHistoryTimeChart mergedTimeTable={mergedTimeTable} />
-              <PomodoroList mergedTimeTable={mergedTimeTable} />
+              <PomodoroList mergedTimeTable={mergedTimeTable} onDeleteRestSession={deleteRestSession}/>
             </GridCell> : <></>
         }
       </Grid>
