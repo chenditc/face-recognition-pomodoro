@@ -1,8 +1,16 @@
 import Chart from "react-apexcharts";
-import {PomodoroCard} from "./PomodoroTimeCard";
+import { formatSeconds, PomodoroCard} from "./PomodoroTimeCard";
 import {renderToString} from 'react-dom/server'
 
 function PomodoroHistoryTimeChart(props) {
+    const mergedTimeTable = props.mergedTimeTable.filter(
+        (timeSlot) => (new Date(timeSlot.startTime).toDateString() === new Date().toDateString())
+    )
+    const focusTime = mergedTimeTable.filter((x) => x.detected).reduce((total, curr) => {
+        return total + curr.timePeriod;
+    } ,0)
+    const chartSessionName = "Total: " + formatSeconds(focusTime)
+
     const options = {
         plotOptions: {
             bar: {
@@ -28,12 +36,10 @@ function PomodoroHistoryTimeChart(props) {
         },
     };
 
-    const dataSeries = props.mergedTimeTable.filter(
-        (timeSlot) => (new Date(timeSlot.startTime).toDateString() === new Date().toDateString())
-    ).map(
+    const dataSeries = mergedTimeTable.map(
         (timeSlot) => {
             return {
-            x: "Time Line",
+            x: chartSessionName,
             y: [
               new Date(timeSlot.startTime).getTime(),
               new Date(timeSlot.endTime).getTime()
