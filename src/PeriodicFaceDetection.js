@@ -16,6 +16,7 @@ import { Grid, GridCell } from '@rmwc/grid'
 import '@rmwc/grid/styles';
 import { LinearProgress } from '@rmwc/linear-progress';
 import '@rmwc/linear-progress/styles';
+import { set } from 'immer/dist/internal';
 
 function StatusMessage(props) {
   return (
@@ -52,12 +53,14 @@ function PeriodicFaceDetection(props) {
   const canvasRef = useRef(null);
   const [detected, setDetected] = useState(false)
   const [cameraSupported] = useState('mediaDevices' in navigator);
+  const [cameraReady, setCameraReady] = useState(false);
 
   const onFaceDetectionResult = props.onFaceDetectionResult
   const detectionInterval = PomoConfigs.faceRecognition.detectionInterval;
   const scoreThreshold = PomoConfigs.faceRecognition.scoreThreshold;
   const enableDetection = PomoConfigs.enableDetection;
   const [detectionRunning, setDetectionRunning] = useState(false);
+  
   const humanML = useRef(null);
 
   // Initialize ML
@@ -92,9 +95,14 @@ function PeriodicFaceDetection(props) {
   // Detect face every n seconds
   useInterval(() => {
     if (!enableDetection) return;
-    if (!cameraReady) return;
     if (detectionRunning) return;
     if (!humanML.current) return;
+
+    const newCameraReady = webcamRef.current ? (webcamRef.current.video.readyState !== undefined && webcamRef.current.video.readyState > 2) : false;
+    if (!cameraReady && newCameraReady) {
+      setCameraReady(newCameraReady);
+    }
+    if (!newCameraReady) return;
 
     async function detectUsingModel() {
       try {
@@ -137,7 +145,6 @@ function PeriodicFaceDetection(props) {
   }
 
   const cameraHeight = PomoConfigs.faceRecognition.showCameraPreview ? "100%" : "1px"
-  const cameraReady = webcamRef.current ? (webcamRef.current.video.readyState !== undefined && webcamRef.current.video.readyState > 2) : false;
   const loadedModelCount = humanML.current ? Object.keys(humanML.current.models).filter((model) => (humanML.current.models[model] !== null)).length : 0;
   const currentProgress = cameraSupported * 0.1 + cameraReady * 0.4 + 0.5 * (loadedModelCount / 2);
   return (
