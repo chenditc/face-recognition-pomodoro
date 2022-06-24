@@ -92,7 +92,7 @@ function HealthMonitor() {
     setSnackBarMessage(message);
 
     const nextSendInterval = notificationHistory[message] ?
-      notificationHistory[message].nextSendInterval * 2 :
+      notificationHistory[message].nextSendInterval * PomoConfigs.notificationIntervalMultiplier :
       PomoConfigs.notificationIntervalSeconds;
 
     notificationHistory[message] = {
