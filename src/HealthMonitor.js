@@ -173,7 +173,7 @@ function HealthMonitor() {
       return;
     }
     // Only change when there is some item, prevent rerender
-    if ((timePeriod > PomoConfigs.tempMissingSeconds) && (notificationHistory.length > 0)) {
+    if ((timePeriod > PomoConfigs.tempMissingSeconds) && (Object.keys(notificationHistory).length > 0)) {
       setNotificationHistory({})
     }
   }, 500, true)
