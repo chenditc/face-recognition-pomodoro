@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Timeline } from 'antd';
 import { ClockCircleOutlined, SmileOutlined } from '@ant-design/icons';
 
-import { PomoConfigsContext } from '../PomoConfigsContext'
+import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext'
 import { formatSeconds, PomodoroCard } from './PomodoroTimeCard';
 
 import { Button } from '@rmwc/button';
@@ -15,11 +15,10 @@ import {css} from '@emotion/css'
 
 function RestTimeLineItem(props) {
   const record = props.record;
-  const index = props.index;
   const onDeleteRestSession = props.onDeleteRestSession;
 
   return (
-    <Timeline.Item color="green" dot={<SmileOutlined />} key={record.startTime}>
+    <Timeline.Item color="green" dot={<SmileOutlined />}>
       <div className={
         css`
           display: flex;
@@ -63,7 +62,7 @@ function PomodoroList(props) {
       return (
         <RestTimeLineItem
           record={record}
-          index={`rest${index}`}
+          key={record.startTime}
           onDeleteRestSession={props.onDeleteRestSession}
         />
       )

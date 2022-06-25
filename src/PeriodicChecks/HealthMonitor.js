@@ -12,10 +12,10 @@ import { Snackbar, SnackbarAction } from '@rmwc/snackbar';
 import '@rmwc/snackbar/styles';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
-import ReactFlipClock from './flipclock/ReactFlipClock.js'
-import PomodoroList from './PomodoroHistory/PomodoroList';
-import PomodoroHistoryTimeChart from './PomodoroHistory/PomodoroTimeChart';
-import { PomoConfigsContext } from './PomoConfigsContext'
+import ReactFlipClock from '../flipclock/ReactFlipClock.js'
+import PomodoroList from '../PomodoroHistory/PomodoroList';
+import PomodoroHistoryTimeChart from '../PomodoroHistory/PomodoroTimeChart';
+import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext'
 
 function HealthMonitor() {
   const PomoConfigs = useContext(PomoConfigsContext);
@@ -27,25 +27,24 @@ function HealthMonitor() {
   const [snackbarMessage, setSnackBarMessage] = useState("");
   const [snackbarOpen, setSnackBarOpen] = useState(false);
 
-  function getDefaultTimeSlot(detected = true, pinnedSession = false, startTime = null) {
+  function getDefaultTimeSlot(detected = true, startTime = null) {
     const usedStateTime = startTime ? startTime : new Date().toJSON();
     const timePeriod = Math.floor((new Date() - new Date(usedStateTime)) / 1000);
     return {
       startTime: usedStateTime,
       endTime: new Date().toJSON(),
       detected: detected,
-      timePeriod: timePeriod,
-      pinnedSession: pinnedSession
+      timePeriod: timePeriod
     }
   }
   const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
-    defaultValue: [getDefaultTimeSlot(true, true)],
+    defaultValue: [getDefaultTimeSlot(true)],
     serializer: (v) => JSON.stringify(v),
     deserializer: (v) => {
       const storedTable = JSON.parse(v)
       // Check diff between last end time and current time
       if (new Date() - new Date(storedTable.at(-1).endTime) > alertStudySeconds * 1000) {
-        storedTable.push(getDefaultTimeSlot(true, true))
+        storedTable.push(getDefaultTimeSlot(true))
       }
       // Keep only last maxLocalStorageTimeSlot session for now
       return storedTable.slice(0 - maxLocalStorageTimeSlot)
@@ -107,25 +106,23 @@ function HealthMonitor() {
     const NewMergedTimeTable = produce(mergedTimeTable, (draftMergeTable) => {
       const currDetected = (detection !== undefined)
       if (draftMergeTable.at(-1).detected !== currDetected
-        && (draftMergeTable.at(-1).timePeriod < tempMissingSeconds)
-        && (draftMergeTable.length > 1)
-        && (!draftMergeTable.at(-1).pinnedSession)) {
+        && (draftMergeTable.at(-1).timePeriod < tempMissingSeconds)) {
         // If last section is less than tempMissingSeconds seconds
         // remove last section so that we have a more continous time range.
-        draftMergeTable.pop()
+        draftMergeTable.pop();
       }
 
-      if (draftMergeTable.at(-1).detected !== currDetected) {
-        draftMergeTable.push(getDefaultTimeSlot(currDetected, false, draftMergeTable.at(-1).endTime))
+      if (draftMergeTable.length === 0 || draftMergeTable.at(-1).detected !== currDetected) {
+        draftMergeTable.push(getDefaultTimeSlot(currDetected, draftMergeTable.at(-1).endTime))
         return;
       }
 
       // If work time not refreshed for some time, start a new session, as computer lock will prevent camera show
       if (draftMergeTable.at(-1).detected && (new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds) {
         // Add a rest session
-        draftMergeTable.push(getDefaultTimeSlot(false, false, draftMergeTable.at(-1).endTime))
+        draftMergeTable.push(getDefaultTimeSlot(false, draftMergeTable.at(-1).endTime))
         // Add a work session
-        draftMergeTable.push(getDefaultTimeSlot(true, false, new Date()))
+        draftMergeTable.push(getDefaultTimeSlot(true, new Date()))
         return;
       }
 

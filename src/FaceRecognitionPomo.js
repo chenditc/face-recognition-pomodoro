@@ -1,9 +1,9 @@
-import HealthMonitor from "./HealthMonitor";
+import HealthMonitor from "./PeriodicChecks/HealthMonitor";
 import 'antd/dist/antd.css';
 import 'antd/dist/antd.less'
 import { useState } from "react";
 import { useLocalStorageState } from 'ahooks';
-import { defaultPomoConfigs, PomoConfigsContext } from './PomoConfigsContext'
+import { defaultPomoConfigs, PomoConfigsContext } from './UserConfigs/PomoConfigsContext'
 import { TopAppBar, TopAppBarRow, TopAppBarSection, TopAppBarActionItem, TopAppBarTitle, TopAppBarFixedAdjust } from '@rmwc/top-app-bar';
 import { ThemeProvider } from '@rmwc/theme'
 import { Portal } from '@rmwc/base';

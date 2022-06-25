@@ -8,7 +8,7 @@ import { css } from '@emotion/css'
 import CheckSquareFilled from '@ant-design/icons/CheckSquareFilled';
 import CloseSquareOutlined from '@ant-design/icons/CloseSquareOutlined';
 
-import { PomoConfigsContext } from './PomoConfigsContext';
+import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext';
 
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';

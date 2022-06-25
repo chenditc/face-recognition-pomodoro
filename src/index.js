@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
+import FaceRecognitionPomo from "./FaceRecognitionPomo";
+import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // Remove restrict mode since meterial component dialog conflict with
   //<React.StrictMode>
-    <App />
+    <FaceRecognitionPomo />
   //  </React.StrictMode>
 );
+
+reportWebVitals(console.log);
