@@ -17,6 +17,8 @@ import '@rmwc/grid/styles';
 import { LinearProgress } from '@rmwc/linear-progress';
 import '@rmwc/linear-progress/styles';
 
+import "image-capture";
+
 function StatusMessage(props) {
   return (
     <Typography use="body2" tag="div" className={css`text-align: center`}>
@@ -59,8 +61,11 @@ function PeriodicFaceDetection(props) {
   const scoreThreshold = PomoConfigs.faceRecognition.scoreThreshold;
   const enableDetection = PomoConfigs.enableDetection;
   const [detectionRunning, setDetectionRunning] = useState(false);
+  const videoTrackRef = useRef(null);
   
   const humanML = useRef(null);
+
+  const imageCaptureSupported = 'ImageCapture' in window;
 
   // Initialize ML
   useEffect(() => {
@@ -97,8 +102,12 @@ function PeriodicFaceDetection(props) {
     if (detectionRunning) return;
     if (!humanML.current) return;
 
-    const newCameraReady = webcamRef.current ? (webcamRef.current.video.readyState !== undefined && webcamRef.current.video.readyState > 2) : false;
-    if (!cameraReady && newCameraReady) {
+    const newCameraReady = (videoTrackRef.current 
+      && videoTrackRef.current.readyState === "live" 
+      && !videoTrackRef.current.muted 
+      && videoTrackRef.current.enabled);
+
+    if (newCameraReady !== cameraReady) {
       setCameraReady(newCameraReady);
     }
     if (!newCameraReady) return;
@@ -110,14 +119,20 @@ function PeriodicFaceDetection(props) {
         const startTime = new Date();
 
         const inputVideo = webcamRef.current.video;
-        const detectionResult = await humanML.current.detect(inputVideo)
+        var input = inputVideo;
+        if (imageCaptureSupported) { 
+          const capture = new ImageCapture(videoTrackRef.current)
+          input = await capture.grabFrame();
+        }
+
+        const detectionResult = await humanML.current.detect(input)
         const detectedFace = detectionResult.face.filter((x) => x.score > scoreThreshold).at(-1)
         onFaceDetectionResult(detectedFace);
         setDetected(detectedFace);
         console.log("Detection used ", ((new Date() - startTime).toString()), "ms");
 
         if (PomoConfigs.faceRecognition.showFaceRecognitionCanvas) {
-          humanML.current.draw.canvas(inputVideo, canvasRef.current)
+          humanML.current.draw.canvas(input, canvasRef.current)
           humanML.current.draw.all(canvasRef.current, detectionResult);
         }
       }
@@ -129,6 +144,10 @@ function PeriodicFaceDetection(props) {
     detectUsingModel()
   }, detectionInterval * 1000, true)
 
+  function onUserMedia(stream) {
+    console.log("New media stream", stream)
+    videoTrackRef.current = stream.getVideoTracks()[0];
+  }
   
   const videoConstraints = {
     width: { ideal: 640 },
@@ -143,7 +162,10 @@ function PeriodicFaceDetection(props) {
     }
   }
 
-  const cameraHeight = PomoConfigs.faceRecognition.showCameraPreview ? "100%" : "1px"
+  // If image capture is not supported, we will need to read from video element.
+  // Video element won't update if it's not in view
+  const hiddenCameraHeight = imageCaptureSupported ? "0px" : "1px";
+  const cameraHeight = PomoConfigs.faceRecognition.showCameraPreview ? "100%" : hiddenCameraHeight
   const loadedModelCount = humanML.current ? Object.keys(humanML.current.models).filter((model) => (humanML.current.models[model] !== null)).length : 0;
   const currentProgress = cameraSupported * 0.1 + cameraReady * 0.4 + 0.5 * (loadedModelCount / 2);
   return (
@@ -172,6 +194,8 @@ function PeriodicFaceDetection(props) {
                     ref={webcamRef}
                     screenshotFormat="image/jpeg"
                     videoConstraints={videoConstraints}
+                    onUserMedia={onUserMedia}
+                    onUserMediaError={(err) => console.log(err)}
                   />
                 </div>
               </GridCell>
