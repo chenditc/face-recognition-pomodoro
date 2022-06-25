@@ -18,9 +18,11 @@ function ReactFlipClock(props) {
         showLabels: false,
       });
       flipclockElement.current.originalValue = new Date(startTime);
+      // TODO: Use minute counter when time < 59 minutes
+      //flipclockElement.current.timer.started = new Date(startTime);
       flipclockElement.current.value = new Date();
       flipclockElement.current.start()
-      //console.log(flipclockElement.current)
+      // console.log(flipclockElement.current)
     }
 
     if (
@@ -29,6 +31,7 @@ function ReactFlipClock(props) {
       // Some times the clock is out of sync, we need to manually sync them
       (Math.abs(new Date() - flipclockElement.current.value.value) > 1000)
     ) {
+      // flipclockElement.current.timer.started = new Date(startTime);
       flipclockElement.current.originalValue = new Date(startTime);
       flipclockElement.current.value = new Date();
     }

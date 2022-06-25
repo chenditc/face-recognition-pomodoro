@@ -39,8 +39,6 @@ function FaceRecognitionPomo() {
     <>
       <ThemeProvider
         options={{
-//          primary: '#424242',
-//          secondary: '#FB8C00'
           primary: '#bf360c',
           secondary: '#616161'
         }}

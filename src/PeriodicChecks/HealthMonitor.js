@@ -16,6 +16,7 @@ import ReactFlipClock from '../flipclock/ReactFlipClock.js'
 import PomodoroList from '../PomodoroHistory/PomodoroList';
 import PomodoroHistoryTimeChart from '../PomodoroHistory/PomodoroTimeChart';
 import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext'
+import {PomoStatus} from '../PomodoroStatus/PomodStatus'
 
 function HealthMonitor() {
   const PomoConfigs = useContext(PomoConfigsContext);
@@ -202,22 +203,10 @@ function HealthMonitor() {
       />
       <Grid>
         <GridCell span={12}>
-          <p className={
-            css`
-            font-size: 20vw;
-            margin: 0 auto;
-            text-align: center;
-            @media (min-width: 700px) {
-              font-size: 140px;
-            }
-            @media (max-width: 350px) {
-              font-size: 75px;
-            }
-          `
-          }> {statusMessage} </p>
+          <PomoStatus statusMessage={statusMessage} />
         </GridCell>
         <GridCell span={12}>
-          <ReactFlipClock clockFace='TwelveHourClock' startTime={lastTimeSlot.startTime} />
+          <ReactFlipClock startTime={lastTimeSlot.startTime} />
         </GridCell>
         <GridCell span={12}>
           <PeriodicFaceDetection
