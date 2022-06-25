@@ -14,8 +14,8 @@ import '@rmwc/theme/styles';
 import '@rmwc/top-app-bar/styles';
 import '@rmwc/icon/styles';
 
-import PomoConfigsDialog from "./PomoConfigsDialog";
-import IntroDialog from "./IntroDialog";
+import PomoConfigsDialog from "./dialogs/PomoConfigsDialog";
+import IntroDialog from "./dialogs/IntroDialog";
 
 function FaceRecognitionPomo() {
   const [pomoConfigs, setPomoConfigs] = useLocalStorageState("pomoConfig", {

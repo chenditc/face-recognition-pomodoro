@@ -12,7 +12,7 @@ import { Snackbar, SnackbarAction } from '@rmwc/snackbar';
 import '@rmwc/snackbar/styles';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
-import ReactFlipClock from './ReactFlipClock.js'
+import ReactFlipClock from './flipclock/ReactFlipClock.js'
 import PomodoroList from './PomodoroHistory/PomodoroList';
 import PomodoroHistoryTimeChart from './PomodoroHistory/PomodoroTimeChart';
 import { PomoConfigsContext } from './PomoConfigsContext'
