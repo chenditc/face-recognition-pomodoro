@@ -71,7 +71,6 @@ function FaceRecognitionPomo() {
           pomoConfigs={pomoConfigs}
           setPomoConfigs={setPomoConfigs}
         />
-
         <PomoConfigsContext.Provider value={pomoConfigs}>
           <HealthMonitor />
         </PomoConfigsContext.Provider>

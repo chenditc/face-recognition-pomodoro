@@ -82,6 +82,22 @@ function PomoConfigsDialog(props) {
             </GridCell>
             <GridCell span={12}><ListDivider /></GridCell>
             <GridCell span={12}>
+              <Typography use="subtitle2">Background Video Config</Typography>
+            </GridCell>
+            <GridCell span={12}>
+                <Tooltip content="Enter a Youtube video url. Leave empty to not play anything.">
+                  <TextField style={{width:"100%"}} required label="Youtube Url" type="text"
+                    defaultValue={props.pomoConfigs.playerUrl}
+                    onChange={(event) => {
+                      setNewPomoConfig(
+                        (oldConfig) => { oldConfig.playerUrl = event.target.value }
+                      )
+                    }}
+                  />
+                </Tooltip>
+            </GridCell>
+            <GridCell span={12}><ListDivider /></GridCell>
+            <GridCell span={12}>
               <GridRow>
                 <GridCell span={12}>
                   <Typography use="subtitle2">Face Recognition Config</Typography>

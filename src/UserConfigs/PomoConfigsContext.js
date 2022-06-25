@@ -20,6 +20,7 @@ const defaultPomoConfigs = {
     showCameraPreview: false,
   },
   enableDetection: false,
+  playerUrl: "https://www.youtube.com/watch?v=q4YyeEM9jsc"
 }
 const PomoConfigsContext = React.createContext(defaultPomoConfigs);
 

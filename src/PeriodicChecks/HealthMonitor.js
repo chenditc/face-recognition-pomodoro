@@ -17,8 +17,9 @@ import PomodoroList from '../PomodoroHistory/PomodoroList';
 import PomodoroHistoryTimeChart from '../PomodoroHistory/PomodoroTimeChart';
 import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext'
 import {PomoStatus} from '../PomodoroStatus/PomodStatus'
+import { PlayerWithStatus } from '../BackgroundPlayers/PlayerWithStatus';
 
-function HealthMonitor() {
+function HealthMonitor(props) {
   const PomoConfigs = useContext(PomoConfigsContext);
 
   const alertStudySeconds = PomoConfigs.alertStudySeconds;
@@ -27,6 +28,7 @@ function HealthMonitor() {
 
   const [snackbarMessage, setSnackBarMessage] = useState("");
   const [snackbarOpen, setSnackBarOpen] = useState(false);
+  const [overTime, setOverTime] = useState(false);
 
   function getDefaultTimeSlot(detected = true, startTime = null) {
     const usedStateTime = startTime ? startTime : new Date().toJSON();
@@ -162,23 +164,28 @@ function HealthMonitor() {
     // Update continue face time and continue rest time
     const timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (timePeriod > alertStudySeconds)) {
+      setOverTime(true);
       sendNotification("该休息啦")
       return;
     }
 
     if (!lastTimeSlot.detected && (timePeriod > alertRestSeconds)) {
+      setOverTime(true);
       sendNotification("休息够啦")
       return;
     }
+
+    setOverTime(false);
     // Only change when there is some item, prevent rerender
     if ((timePeriod > PomoConfigs.tempMissingSeconds) && (Object.keys(notificationHistory).length > 0)) {
       setNotificationHistory({})
     }
   }, 500, true)
 
-  const statusMessage = lastTimeSlot.detected ? "WORKING" : "REST";
 
   return (
+    <>
+      <PlayerWithStatus focus={lastTimeSlot.detected} overTime={overTime} startTime={lastTimeSlot.startTime}/>
     <div className={
       css`
       margin: 0 15px;
@@ -203,7 +210,7 @@ function HealthMonitor() {
       />
       <Grid>
         <GridCell span={12}>
-          <PomoStatus statusMessage={statusMessage} />
+          <PomoStatus focus={lastTimeSlot.detected} />
         </GridCell>
         <GridCell span={12}>
           <ReactFlipClock startTime={lastTimeSlot.startTime} />
@@ -224,6 +231,7 @@ function HealthMonitor() {
       </Grid>
 
     </div>
+    </>
   )
 }
 
