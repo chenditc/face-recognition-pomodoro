@@ -52,7 +52,8 @@ export function PlayerWithStatus(props) {
             }
 
             padding: 10px;
-            border-radius: 10px
+            border-radius: 10px;
+            cursor: grab;
         `}>
             <PomoStatus className={
               css`
