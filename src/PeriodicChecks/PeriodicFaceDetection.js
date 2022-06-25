@@ -129,7 +129,7 @@ function PeriodicFaceDetection(props) {
         const detectedFace = detectionResult.face.filter((x) => x.score > scoreThreshold).at(-1)
         onFaceDetectionResult(detectedFace);
         setDetected(detectedFace);
-        console.log("Detection used ", ((new Date() - startTime).toString()), "ms");
+        //console.log("Detection used ", ((new Date() - startTime).toString()), "ms");
 
         if (PomoConfigs.faceRecognition.showFaceRecognitionCanvas) {
           humanML.current.draw.canvas(input, canvasRef.current)
