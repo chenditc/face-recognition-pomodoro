@@ -30,7 +30,6 @@ function PomoConfigsDialog(props) {
           }
           props.onClose()
         }}
-        renderToPortal={true}
       >
         <DialogTitle>Configuration</DialogTitle>
         <DialogContent>

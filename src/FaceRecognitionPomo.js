@@ -6,9 +6,8 @@ import { useLocalStorageState } from 'ahooks';
 import { defaultPomoConfigs, PomoConfigsContext } from './UserConfigs/PomoConfigsContext'
 import { TopAppBar, TopAppBarRow, TopAppBarSection, TopAppBarActionItem, TopAppBarTitle, TopAppBarFixedAdjust } from '@rmwc/top-app-bar';
 import { ThemeProvider } from '@rmwc/theme'
-import { Portal } from '@rmwc/base';
 import { css } from "@emotion/css";
-import {produce } from 'immer';
+import { produce } from 'immer';
 
 import '@rmwc/theme/styles';
 import '@rmwc/top-app-bar/styles';
@@ -43,8 +42,8 @@ function FaceRecognitionPomo() {
           secondary: '#616161'
         }}
       >
-        <Portal />
-        <TopAppBar style={{zIndex: 15}}>
+
+        <TopAppBar style={{ zIndex: 15 }}>
           <TopAppBarRow>
             <TopAppBarSection alignStart>
               <TopAppBarActionItem icon="help" onClick={() => setOpenIntroDialog(true)} />
@@ -55,25 +54,26 @@ function FaceRecognitionPomo() {
               </TopAppBarTitle>
             </TopAppBarSection>
             <TopAppBarSection alignEnd>
-              <TopAppBarActionItem icon="settings" onClick={() => setOpenConfigDialog(true)}/>
+              <TopAppBarActionItem icon="settings" onClick={() => setOpenConfigDialog(true)} />
             </TopAppBarSection>
           </TopAppBarRow>
         </TopAppBar>
         <TopAppBarFixedAdjust />
 
-        <IntroDialog 
-          open={openIntroDialog}
-          onClose={onIntroDialogClose} 
+          <IntroDialog
+            open={openIntroDialog}
+            onClose={onIntroDialogClose}
           />
-        <PomoConfigsDialog 
-          open={openConfigDialog} 
-          onClose={() => setOpenConfigDialog(false)} 
-          pomoConfigs={pomoConfigs}
-          setPomoConfigs={setPomoConfigs}
-        />
+          <PomoConfigsDialog
+            open={openConfigDialog}
+            onClose={() => setOpenConfigDialog(false)}
+            pomoConfigs={pomoConfigs}
+            setPomoConfigs={setPomoConfigs}
+          />
         <PomoConfigsContext.Provider value={pomoConfigs}>
           <HealthMonitor />
         </PomoConfigsContext.Provider>
+
       </ThemeProvider>
     </>
   );

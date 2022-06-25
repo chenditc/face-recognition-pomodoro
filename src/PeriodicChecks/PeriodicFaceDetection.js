@@ -116,8 +116,6 @@ function PeriodicFaceDetection(props) {
       try {
         setDetectionRunning(true);
 
-        const startTime = new Date();
-
         const inputVideo = webcamRef.current.video;
         var input = inputVideo;
         if (imageCaptureSupported) { 
