@@ -20,6 +20,7 @@ import {PomoStatus} from '../PomodoroStatus/PomodStatus'
 import { PlayerWithStatus } from '../BackgroundPlayers/PlayerWithStatus';
 
 import {formatSeconds} from '../PomodoroHistory/PomodoroTimeCard'
+import {Icon} from '@rmwc/icon'
 
 function HealthMonitor(props) {
   const PomoConfigs = useContext(PomoConfigsContext);
@@ -79,7 +80,7 @@ function HealthMonitor(props) {
     }
   }, [PomoConfigs.enableNotification])
 
-  function sendNotification(message) {
+  function sendNotification(message, icon) {
     if (notificationHistory[message] && (
       (new Date() - notificationHistory[message].lastSendTime) < (notificationHistory[message].nextSendInterval * 1000))) {
       // Only send notification every notificationIntervalSeconds
@@ -89,7 +90,7 @@ function HealthMonitor(props) {
     // If it's okay let's create a notification
     playDingBellSfx();
     if (webNotificationSupported && Notification.permission === "granted") {
-      new Notification(message);
+      new Notification(message, {icon:icon, badge:icon});
     }
 
     setSnackBarOpen(true);
@@ -168,15 +169,16 @@ function HealthMonitor(props) {
     if (lastTimeSlot.detected && (timePeriod > alertStudySeconds)) {
       setOverTime(true);
       document.title = PomoConfigs.restNotificationText;
-
-      sendNotification(PomoConfigs.restNotificationText)
+      const iconUrl = "https://chenditc.github.io/face-recognition-pomodoro/images/relax.png"
+      sendNotification(PomoConfigs.restNotificationText, iconUrl)
       return;
     }
 
     if (!lastTimeSlot.detected && (timePeriod > alertRestSeconds)) {
       setOverTime(true);
       document.title = PomoConfigs.focusNotificationText;
-      sendNotification(PomoConfigs.focusNotificationText)
+      const iconUrl = "https://chenditc.github.io/face-recognition-pomodoro/images/focus.png"
+      sendNotification(PomoConfigs.focusNotificationText, iconUrl)
       return;
     }
 
