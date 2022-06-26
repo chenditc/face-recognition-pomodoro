@@ -3,13 +3,13 @@
   "name": "Face Recognition Pomodoro",
   "icons": [
     {
-      "src": "android-chrome-192x192.png",
-      "sizes": "192x192",
+      "src": "icons8-clock-bubbles-120.png",
+      "sizes": "120x120",
       "type": "image/png"
     },
     {
-      "src": "android-chrome-512x512.png",
-      "sizes": "512x512",
+      "src": "icons8-clock-500.png",
+      "sizes": "500x500",
       "type": "image/png"
     }
   ],
