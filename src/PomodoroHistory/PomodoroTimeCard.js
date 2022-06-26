@@ -1,4 +1,4 @@
-import { Card } from 'antd/lib/card';
+import Card from 'antd/lib/card';
 import { css } from '@emotion/css'
 
 export function formatSeconds(seconds, preserveSeconds = false) {

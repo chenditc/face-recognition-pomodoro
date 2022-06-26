@@ -200,7 +200,7 @@ function PomoConfigsDialog(props) {
                 <GridCell span={12}>
                   <Tooltip content="This message will be displayed to let you know it's time to start Pomodoro session.">
                     <TextField style={{width: "100%"}} required label="Focus Notification Message"
-                      minlength={1}
+                      minLength={1}
                       defaultValue={props.pomoConfigs.focusNotificationText}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
@@ -214,7 +214,7 @@ function PomoConfigsDialog(props) {
                 <GridCell span={12}>
                   <Tooltip content="This message will be displayed to let you know it's time to take a break.">
                     <TextField style={{width: "100%"}} required label="Rest Notification Message"
-                      minlength={1}
+                      minLength={1}
                       defaultValue={props.pomoConfigs.restNotificationText}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
