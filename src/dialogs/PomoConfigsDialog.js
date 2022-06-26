@@ -15,15 +15,20 @@ import '@rmwc/list/styles';
 
 import './PomoConfigsDialog.css'
 import { useImmer } from "use-immer";
+import { useRef, useState } from 'react';
 
 function PomoConfigsDialog(props) {
+  const formRef = useRef(null);
   const [newPomoConfig, setNewPomoConfig] = useImmer(props.pomoConfigs);
+
+  const [formValid, setFormValid] = useState(true);
 
   return (
     <>
       <Dialog
         style={{zIndex: 15}}
         open={props.open}
+        preventOutsideDismiss={true}
         onClose={(event) => {
           if (event.target.action === "confirm") {
             props.setPomoConfigs(newPomoConfig);
@@ -33,6 +38,11 @@ function PomoConfigsDialog(props) {
       >
         <DialogTitle>Configuration</DialogTitle>
         <DialogContent>
+          <form ref={formRef} onChange={() => {
+            const newValid = formRef.current && formRef.current.reportValidity();
+            console.log(newValid);
+            if (newValid !== formValid) setFormValid(newValid);
+          }}>
           <Grid>
             <GridCell span={12}>
               <GridRow>
@@ -59,10 +69,7 @@ function PomoConfigsDialog(props) {
                     suffix="minutes" pattern="[0-9]*" min={1}
                     defaultValue={props.pomoConfigs.alertRestSeconds / 60}
                     onChange={(event) => {
-                      if (!event.target.validity.valid) {
-                          event.target.reportValidity();
-                          return;
-                        }
+                      if (!event.target.reportValidity()) return;
                       setNewPomoConfig(
                         (oldConfig) => { oldConfig.alertRestSeconds = parseInt(event.target.value) * 60 }
                       )
@@ -75,10 +82,7 @@ function PomoConfigsDialog(props) {
                       suffix="seconds" pattern="[0-9]*" min={0}
                       defaultValue={props.pomoConfigs.tempMissingSeconds}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) {
-                          event.target.reportValidity();
-                          return;
-                        }
+                        if (!event.target.reportValidity()) return;
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.tempMissingSeconds = parseInt(event.target.value) }
                         )
@@ -116,10 +120,7 @@ function PomoConfigsDialog(props) {
                       pattern="[0-9]*" suffix="seconds" min={2}
                       defaultValue={props.pomoConfigs.faceRecognition.detectionInterval}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) {
-                          event.target.reportValidity();
-                          return
-                        }
+                        if (!event.target.reportValidity()) return;
                         const newTime = parseInt(event.target.value)
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.faceRecognition.detectionInterval = newTime }
@@ -174,10 +175,7 @@ function PomoConfigsDialog(props) {
                     suffix="seconds" pattern="[0-9]*"
                     defaultValue={props.pomoConfigs.notificationIntervalSeconds}
                     onChange={(event) => {
-                      if (!event.target.validity.valid) {
-                        event.target.reportValidity();
-                        return;
-                      }
+                      if (!event.target.reportValidity()) return;
                       setNewPomoConfig(
                         (oldConfig) => { oldConfig.notificationIntervalSeconds = parseInt(event.target.value) }
                       )
@@ -190,10 +188,7 @@ function PomoConfigsDialog(props) {
                       suffix="times" pattern="[0-9\.]*" min={1} type="number" step="0.1"
                       defaultValue={props.pomoConfigs.notificationIntervalMultiplier}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) {
-                          event.target.reportValidity();
-                          return;
-                        }
+                        if (!event.target.reportValidity()) return;
                         const newValue = parseFloat(event.target.value)
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.notificationIntervalMultiplier = newValue }
@@ -208,10 +203,7 @@ function PomoConfigsDialog(props) {
                       minlength={1}
                       defaultValue={props.pomoConfigs.focusNotificationText}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) {
-                          event.target.reportValidity();
-                          return;
-                        }
+                        if (!event.target.reportValidity()) return;
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.focusNotificationText = event.target.value }
                         )
@@ -225,10 +217,7 @@ function PomoConfigsDialog(props) {
                       minlength={1}
                       defaultValue={props.pomoConfigs.restNotificationText}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) {
-                          event.target.reportValidity();
-                          return;
-                        }
+                        if (!event.target.reportValidity()) return;
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.restNotificationText = event.target.value }
                         )
@@ -251,10 +240,7 @@ function PomoConfigsDialog(props) {
                       pattern="[0-9]*" suffix="entries" min={1}
                       defaultValue={props.pomoConfigs.history.maxLocalStorageTimeSlot}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) {
-                          event.target.reportValidity();
-                          return;
-                        }
+                        if (!event.target.reportValidity()) return;
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.history.maxLocalStorageTimeSlot = parseInt(event.target.value) }
                         )
@@ -287,10 +273,11 @@ function PomoConfigsDialog(props) {
               </GridRow>
             </GridCell>
           </Grid>
+          </form>
         </DialogContent>
         <DialogActions>
           <DialogButton action="close">Cancel</DialogButton>
-          <DialogButton action="confirm" isDefaultAction>
+          <DialogButton action="confirm" disabled={!formValid} isDefaultAction>
             Confirm
           </DialogButton>
         </DialogActions>
