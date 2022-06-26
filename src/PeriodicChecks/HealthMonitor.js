@@ -165,13 +165,13 @@ function HealthMonitor(props) {
     const timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (timePeriod > alertStudySeconds)) {
       setOverTime(true);
-      sendNotification("该休息啦")
+      sendNotification(PomoConfigs.restNotificationText)
       return;
     }
 
     if (!lastTimeSlot.detected && (timePeriod > alertRestSeconds)) {
       setOverTime(true);
-      sendNotification("休息够啦")
+      sendNotification(PomoConfigs.focusNotificationText)
       return;
     }
 

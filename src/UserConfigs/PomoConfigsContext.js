@@ -20,7 +20,9 @@ const defaultPomoConfigs = {
     showCameraPreview: false,
   },
   enableDetection: false,
-  playerUrl: "https://www.youtube.com/watch?v=q4YyeEM9jsc"
+  playerUrl: "https://www.youtube.com/watch?v=q4YyeEM9jsc",
+  focusNotificationText: "Time to focus!",
+  restNotificationText: "Let's take a break."
 }
 const PomoConfigsContext = React.createContext(defaultPomoConfigs);
 

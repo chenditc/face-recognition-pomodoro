@@ -171,7 +171,7 @@ function PomoConfigsDialog(props) {
                 <GridCell span={12}>
                   <Typography use="subtitle2">Notification Config</Typography>
                 </GridCell>
-                <GridCell>
+                <GridCell span={4}>
                   <TextField required label="Notification Interval Time" type="number"
                     suffix="seconds" pattern="[0-9]*"
                     defaultValue={props.pomoConfigs.notificationIntervalSeconds}
@@ -183,7 +183,7 @@ function PomoConfigsDialog(props) {
                     }}
                   />
                 </GridCell>
-                <GridCell>
+                <GridCell span={4}>
                   <Tooltip content="Everytime a notification is send, its wait time will multiply previous interval, so that the sending interval is longer and longer. If you don't want this behavior, change it to 1.">
                     <TextField required label="Notification Interval Multiplier"
                       suffix="times" pattern="[0-9\.]*"
@@ -198,6 +198,32 @@ function PomoConfigsDialog(props) {
                         }
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.notificationIntervalMultiplier = newValue }
+                        )
+                      }}
+                    />
+                  </Tooltip>
+                </GridCell>
+                <GridCell span={12}>
+                  <Tooltip content="This message will be displayed to let you know it's time to start Pomodoro session.">
+                    <TextField style={{width: "100%"}} required label="Focus Notification Message"
+                      defaultValue={props.pomoConfigs.focusNotificationText}
+                      onChange={(event) => {
+                        const newValue = event.target.value ? event.target.value : "";
+                        setNewPomoConfig(
+                          (oldConfig) => { oldConfig.focusNotificationText = newValue }
+                        )
+                      }}
+                    />
+                  </Tooltip>
+                </GridCell>
+                <GridCell span={12}>
+                  <Tooltip content="This message will be displayed to let you know it's time to take a break.">
+                    <TextField style={{width: "100%"}} required label="Rest Notification Message"
+                      defaultValue={props.pomoConfigs.restNotificationText}
+                      onChange={(event) => {
+                        const newValue = event.target.value ? event.target.value : "";
+                        setNewPomoConfig(
+                          (oldConfig) => { oldConfig.restNotificationText = newValue }
                         )
                       }}
                     />
