@@ -19,6 +19,8 @@ import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext'
 import {PomoStatus} from '../PomodoroStatus/PomodStatus'
 import { PlayerWithStatus } from '../BackgroundPlayers/PlayerWithStatus';
 
+import {formatSeconds} from '../PomodoroHistory/PomodoroTimeCard'
+
 function HealthMonitor(props) {
   const PomoConfigs = useContext(PomoConfigsContext);
 
@@ -165,23 +167,26 @@ function HealthMonitor(props) {
     const timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (timePeriod > alertStudySeconds)) {
       setOverTime(true);
+      document.title = PomoConfigs.restNotificationText;
+
       sendNotification(PomoConfigs.restNotificationText)
       return;
     }
 
     if (!lastTimeSlot.detected && (timePeriod > alertRestSeconds)) {
       setOverTime(true);
+      document.title = PomoConfigs.focusNotificationText;
       sendNotification(PomoConfigs.focusNotificationText)
       return;
     }
 
+    document.title = formatSeconds(timePeriod, true);
     setOverTime(false);
     // Only change when there is some item, prevent rerender
     if ((timePeriod > PomoConfigs.tempMissingSeconds) && (Object.keys(notificationHistory).length > 0)) {
       setNotificationHistory({})
     }
   }, 500, true)
-
 
   return (
     <>

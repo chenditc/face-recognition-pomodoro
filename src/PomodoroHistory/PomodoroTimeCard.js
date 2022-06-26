@@ -1,14 +1,15 @@
 import { Card } from 'antd';
 import { css } from '@emotion/css'
 
-export function formatSeconds(seconds) {
+export function formatSeconds(seconds, preserveSeconds = false) {
     const roundSeconds = Math.floor(seconds)
     if (roundSeconds < 60) {
       return `${roundSeconds}s`
     }
     if (roundSeconds < 3600) {
       const minutes = Math.floor(roundSeconds / 60);
-      return `${minutes}m`
+      const secondsResidual = roundSeconds - minutes * 60;
+      return preserveSeconds ? `${minutes}m ${secondsResidual}s` : `${minutes}m`;
     }
     const minutes = Math.floor(roundSeconds / 60);
     const minutesResidual = minutes % 60;
