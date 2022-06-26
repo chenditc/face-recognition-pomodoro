@@ -1,6 +1,5 @@
 import HealthMonitor from "./PeriodicChecks/HealthMonitor";
 import 'antd/dist/antd.css';
-import 'antd/dist/antd.less'
 import { useState } from "react";
 import { useLocalStorageState } from 'ahooks';
 import { defaultPomoConfigs, PomoConfigsContext } from './UserConfigs/PomoConfigsContext'
