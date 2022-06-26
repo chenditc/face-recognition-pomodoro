@@ -25,6 +25,7 @@
     "react-collapse": "^5.1.1",
     "react-dom": "^18.1.0",
     "react-draggable": "^4.4.5",
+    "react-markdown": "^8.0.3",
     "react-scripts": "5.0.1",
     "react-webcam": "^7.0.1",
     "react-youtube": "^9.0.2",

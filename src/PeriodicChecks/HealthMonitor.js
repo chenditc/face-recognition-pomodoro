@@ -20,7 +20,6 @@ import {PomoStatus} from '../PomodoroStatus/PomodStatus'
 import { PlayerWithStatus } from '../BackgroundPlayers/PlayerWithStatus';
 
 import {formatSeconds} from '../PomodoroHistory/PomodoroTimeCard'
-import {Icon} from '@rmwc/icon'
 
 function HealthMonitor(props) {
   const PomoConfigs = useContext(PomoConfigsContext);

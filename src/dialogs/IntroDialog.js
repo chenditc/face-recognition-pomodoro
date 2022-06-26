@@ -6,10 +6,23 @@ import '@rmwc/typography/styles';
 
 import { Card, CardPrimaryAction} from '@rmwc/card';
 import '@rmwc/card/styles';
-import { css } from '@emotion/css'
+
+import ReactMarkdown from 'react-markdown'
 
 function IntroDialog(props) {
-  const hightlightClassName=css`font-weight: bold;`
+  const introMarkdown = `
+This is a **Pomodoro Clock**. It's special because:
+
+- It can automatically help you start **a focus session** when the camera detected your face.
+- It can automatically start **a rest session** When the camera no longer detect your face 
+
+We will need two permission from you:
+- Permission to **send notification**, so that you will get reminded when session timed out.
+- Permission to **access your camera**.
+
+Please click allow button around the browser's url.
+`
+
   return (
     <>
       <Dialog
@@ -18,7 +31,6 @@ function IntroDialog(props) {
         onClose={(event) => {
           props.onClose()
         }}
-        renderToPortal={true}
       >
         <DialogTitle>Intro to Face Recognition Pomodoro</DialogTitle>
         <DialogContent>
@@ -34,13 +46,7 @@ function IntroDialog(props) {
                   tag="div"
                   theme="textSecondaryOnBackground"
                 >
-                  This is a <span className={hightlightClassName}>Pomodoro clock</span>.
-
-                  Unlike other Pomodoro Clock, it can automatically help you start
-                  <span className={hightlightClassName}> a focus session </span>when the camera detected your face. When the camera 
-                  no longer detect your face, it starts <span className={hightlightClassName}> a rest session </span>.
-
-                  We will request camera permission and notification permission later, please click allow around the browser's url.
+                <ReactMarkdown children={introMarkdown} />
                 </Typography>
               </div>
             </CardPrimaryAction>
@@ -57,8 +63,11 @@ function IntroDialog(props) {
                   tag="div"
                   theme="textSecondaryOnBackground"
                 >
-                  If the time of stepping away is less than <span className={hightlightClassName}> Max Allowed Missing Time </span>
+                <ReactMarkdown>
+                  If the time of stepping away is less than **Max Allowed Missing Time** 
                   in the settings, the Pomodoro session will continue the session when you are back.
+                </ReactMarkdown>
+                  
                 </Typography>
               </div>
             </CardPrimaryAction>
