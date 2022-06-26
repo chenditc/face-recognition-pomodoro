@@ -41,10 +41,13 @@ function PomoConfigsDialog(props) {
                 </GridCell>
                 <GridCell span={4}>
                   <TextField required label="Focus Time" type="number"
-                    suffix="minutes" pattern="[0-9]*"
+                    suffix="minutes" pattern="[0-9]*" min={1}
                     defaultValue={props.pomoConfigs.alertStudySeconds / 60}
                     onChange={(event) => {
-                      if (!event.target.validity.valid) return
+                      if (!event.target.validity.valid) {
+                        event.target.reportValidity();
+                        return;
+                      }
                       setNewPomoConfig(
                         (oldConfig) => { oldConfig.alertStudySeconds = parseInt(event.target.value) * 60 }
                       )
@@ -53,10 +56,13 @@ function PomoConfigsDialog(props) {
                 </GridCell>
                 <GridCell span={4}>
                   <TextField required label="Rest Time" type="number"
-                    suffix="minutes" pattern="[0-9]*"
+                    suffix="minutes" pattern="[0-9]*" min={1}
                     defaultValue={props.pomoConfigs.alertRestSeconds / 60}
                     onChange={(event) => {
-                      if (!event.target.validity.valid) return
+                      if (!event.target.validity.valid) {
+                          event.target.reportValidity();
+                          return;
+                        }
                       setNewPomoConfig(
                         (oldConfig) => { oldConfig.alertRestSeconds = parseInt(event.target.value) * 60 }
                       )
@@ -66,10 +72,13 @@ function PomoConfigsDialog(props) {
                 <GridCell span={4}>
                   <Tooltip content="If the rest time or focus time is less than this, it will not be counted as a separted time slot.">
                     <TextField required label="Max allowed missing time" type="number"
-                      suffix="seconds" pattern="[0-9]*"
+                      suffix="seconds" pattern="[0-9]*" min={0}
                       defaultValue={props.pomoConfigs.tempMissingSeconds}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) return
+                        if (!event.target.validity.valid) {
+                          event.target.reportValidity();
+                          return;
+                        }
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.tempMissingSeconds = parseInt(event.target.value) }
                         )
@@ -85,7 +94,7 @@ function PomoConfigsDialog(props) {
             </GridCell>
             <GridCell span={12}>
                 <Tooltip content="Enter a Youtube video url. Leave empty to not play anything.">
-                  <TextField style={{width:"100%"}} required label="Youtube Url" type="text"
+                  <TextField style={{width:"100%"}} label="Youtube Url" type="text"
                     defaultValue={props.pomoConfigs.playerUrl}
                     onChange={(event) => {
                       setNewPomoConfig(
@@ -104,31 +113,20 @@ function PomoConfigsDialog(props) {
                 <GridCell>
                   <Tooltip content="Every n seconds we detect user face, shorter interval might increase CPU usage, longer interval might make pomodoro less sensitive.">
                     <TextField required label="Face Detection Interval" type="number"
-                      pattern="[0-9]*" suffix="seconds"
+                      pattern="[0-9]*" suffix="seconds" min={2}
                       defaultValue={props.pomoConfigs.faceRecognition.detectionInterval}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) return
-                        const newTime = parseInt(event.target.value)
-                        if (newTime < 2) {
+                        if (!event.target.validity.valid) {
+                          event.target.reportValidity();
                           return
                         }
+                        const newTime = parseInt(event.target.value)
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.faceRecognition.detectionInterval = newTime }
                         )
                       }}
                     />
                   </Tooltip>
-                </GridCell>
-                <GridCell>
-                  <Switch
-                    defaultChecked={props.pomoConfigs.enableDetection}
-                    onChange={(event) => {
-                      setNewPomoConfig(
-                        (oldConfig) => { oldConfig.enableDetection = event.target.checked }
-                      )
-                    }}
-                    label="Enable Face Detection"
-                  />
                 </GridCell>
                 <GridCell>
                   <Switch
@@ -176,7 +174,10 @@ function PomoConfigsDialog(props) {
                     suffix="seconds" pattern="[0-9]*"
                     defaultValue={props.pomoConfigs.notificationIntervalSeconds}
                     onChange={(event) => {
-                      if (!event.target.validity.valid) return
+                      if (!event.target.validity.valid) {
+                        event.target.reportValidity();
+                        return;
+                      }
                       setNewPomoConfig(
                         (oldConfig) => { oldConfig.notificationIntervalSeconds = parseInt(event.target.value) }
                       )
@@ -186,16 +187,14 @@ function PomoConfigsDialog(props) {
                 <GridCell span={4}>
                   <Tooltip content="Everytime a notification is send, its wait time will multiply previous interval, so that the sending interval is longer and longer. If you don't want this behavior, change it to 1.">
                     <TextField required label="Notification Interval Multiplier"
-                      suffix="times" pattern="[0-9\.]*"
+                      suffix="times" pattern="[0-9\.]*" min={1} type="number" step="0.1"
                       defaultValue={props.pomoConfigs.notificationIntervalMultiplier}
                       onChange={(event) => {
-                        console.log(event)
-                        if (!event.target.validity.valid) return
-                        const newValue = parseFloat(event.target.value)
-                        if (newValue < 1) {
-                          event.target.setCustomValidity("Multiplier cannot be less than 1")
+                        if (!event.target.validity.valid) {
+                          event.target.reportValidity();
                           return;
                         }
+                        const newValue = parseFloat(event.target.value)
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.notificationIntervalMultiplier = newValue }
                         )
@@ -206,11 +205,15 @@ function PomoConfigsDialog(props) {
                 <GridCell span={12}>
                   <Tooltip content="This message will be displayed to let you know it's time to start Pomodoro session.">
                     <TextField style={{width: "100%"}} required label="Focus Notification Message"
+                      minlength={1}
                       defaultValue={props.pomoConfigs.focusNotificationText}
                       onChange={(event) => {
-                        const newValue = event.target.value ? event.target.value : "";
+                        if (!event.target.validity.valid) {
+                          event.target.reportValidity();
+                          return;
+                        }
                         setNewPomoConfig(
-                          (oldConfig) => { oldConfig.focusNotificationText = newValue }
+                          (oldConfig) => { oldConfig.focusNotificationText = event.target.value }
                         )
                       }}
                     />
@@ -219,11 +222,15 @@ function PomoConfigsDialog(props) {
                 <GridCell span={12}>
                   <Tooltip content="This message will be displayed to let you know it's time to take a break.">
                     <TextField style={{width: "100%"}} required label="Rest Notification Message"
+                      minlength={1}
                       defaultValue={props.pomoConfigs.restNotificationText}
                       onChange={(event) => {
-                        const newValue = event.target.value ? event.target.value : "";
+                        if (!event.target.validity.valid) {
+                          event.target.reportValidity();
+                          return;
+                        }
                         setNewPomoConfig(
-                          (oldConfig) => { oldConfig.restNotificationText = newValue }
+                          (oldConfig) => { oldConfig.restNotificationText = event.target.value }
                         )
                       }}
                     />
@@ -241,10 +248,13 @@ function PomoConfigsDialog(props) {
                   <Tooltip content="Increasing this might degrade performance.">
                     <TextField required label="Max pomodoro history entries kepted" type="number"
                       resizeable={true}
-                      pattern="[0-9]*" suffix="entries"
+                      pattern="[0-9]*" suffix="entries" min={1}
                       defaultValue={props.pomoConfigs.history.maxLocalStorageTimeSlot}
                       onChange={(event) => {
-                        if (!event.target.validity.valid) return
+                        if (!event.target.validity.valid) {
+                          event.target.reportValidity();
+                          return;
+                        }
                         setNewPomoConfig(
                           (oldConfig) => { oldConfig.history.maxLocalStorageTimeSlot = parseInt(event.target.value) }
                         )
