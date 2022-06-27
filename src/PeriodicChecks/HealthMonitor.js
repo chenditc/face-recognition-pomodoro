@@ -127,7 +127,7 @@ function HealthMonitor(props) {
         // Add a rest session
         draftMergeTable.push(getDefaultTimeSlot(false, draftMergeTable.at(-1).endTime))
         // Add a work session
-        draftMergeTable.push(getDefaultTimeSlot(true, new Date()))
+        draftMergeTable.push(getDefaultTimeSlot(true, new Date().toJSON()))
         return;
       }
 
