@@ -20,12 +20,9 @@ export function PlayerWithStatus(props) {
     return (<></>)
   }
 
-  var shouldPlay = true;
-  if (props.focus && props.overTime) {
-    shouldPlay = false;
-  }
-  if (!props.focus && !props.overTime) {
-    shouldPlay = false;
+  var shouldPlay = false;
+  if (props.focus && !props.overTime) {
+    shouldPlay = true;
   }
 
   const playerStatusClassName = css`

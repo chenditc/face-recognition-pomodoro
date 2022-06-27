@@ -33,6 +33,7 @@ function HealthMonitor(props) {
   const [overTime, setOverTime] = useState(false);
 
   function getDefaultTimeSlot(detected = true, startTime = null) {
+    console.log(new Date(), "Added new session: detected:", detected, "startTime", startTime);
     const usedStateTime = startTime ? startTime : new Date().toJSON();
     const timePeriod = Math.floor((new Date() - new Date(usedStateTime)) / 1000);
     return {
