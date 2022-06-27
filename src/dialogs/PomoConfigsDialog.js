@@ -29,6 +29,10 @@ function PomoConfigsDialog(props) {
         style={{zIndex: 15}}
         open={props.open}
         preventOutsideDismiss={true}
+        onOpen={(event) => {
+          // Reset config files
+          setNewPomoConfig(props.pomoConfigs);
+        }}
         onClose={(event) => {
           if (event.target.action === "confirm") {
             props.setPomoConfigs(newPomoConfig);
