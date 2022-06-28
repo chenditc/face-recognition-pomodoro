@@ -6,10 +6,16 @@ Electron wrapped desktop version: https://github.com/chenditc/face-recognition-p
 
 ## What is this?
 
-This is a **Pomodoro clock**.
+This is a **Pomodoro Clock**. It's special because:
 
-Unlike other Pomodoro Clock, it can automatically help you start **a focus session** when the camera detected your face. When the camera 
-no longer detect your face, it starts **a rest session**.
+- It can automatically help you start **a focus session** when the camera detected your face.
+- It can automatically start **a rest session** When the camera no longer detect your face 
+
+We will need two permission from you:
+- Permission to **send notification**, so that you will get reminded when session timed out.
+- Permission to **access your camera**.
+
+Please click allow button around the browser's url.
 
 ### What if I left my camera but don't want to stop the Pomodoro session?
 
