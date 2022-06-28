@@ -2,6 +2,8 @@
 
 Live demo: https://chenditc.github.io/face-recognition-pomodoro
 
+Electron wrapped desktop version: https://github.com/chenditc/face-recognition-pomodoro/releases/download/0.0.1/Face.Recognition.Pomodoro-win32-x64-always-on-top.zip
+
 ## What is this?
 
 This is a **Pomodoro clock**.
