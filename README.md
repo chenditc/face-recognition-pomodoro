@@ -17,6 +17,22 @@ We will need two permission from you:
 
 Please click allow button around the browser's url.
 
+## Features
+
+![Simple View](docs/simple_view.png)
+
+- Status message showing "WORKING" / "REST"
+- Flip clock showing current session duration.
+- Pomodoro History
+  - Today's focus time distribution and total time.
+  - All past pomodoro session's information.
+
+![Youtube View](docs/youtube_view.png)
+
+- Youtube immersive view. 
+  - Play youtube video in the background, music will be played when you are working and not work overtime.
+  - Draggable status and flip clock panel.
+
 ### What if I left my camera but don't want to stop the Pomodoro session?
 
 If the time of stepping away is less than **Max Allowed Missing Time**
