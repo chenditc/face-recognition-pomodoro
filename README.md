@@ -19,7 +19,7 @@ Please click allow button around the browser's url.
 
 ## Features
 
-![Simple View](docs/simple_view.png)
+<img src="docs/simple_view.png" width="300">
 
 - Status message showing "WORKING" / "REST"
 - Flip clock showing current session duration.
