@@ -2,12 +2,36 @@
 
 Live demo: https://chenditc.github.io/face-recognition-pomodoro
 
+Electron wrapped desktop version: https://github.com/chenditc/face-recognition-pomodoro/releases/download/0.0.1/Face.Recognition.Pomodoro-win32-x64-always-on-top.zip
+
 ## What is this?
 
-This is a **Pomodoro clock**.
+This is a **Pomodoro Clock**. It's special because:
 
-Unlike other Pomodoro Clock, it can automatically help you start **a focus session** when the camera detected your face. When the camera 
-no longer detect your face, it starts **a rest session**.
+- It can automatically help you start **a focus session** when the camera detected your face.
+- It can automatically start **a rest session** When the camera no longer detect your face 
+
+We will need two permission from you:
+- Permission to **send notification**, so that you will get reminded when session timed out.
+- Permission to **access your camera**.
+
+Please click allow button around the browser's url.
+
+## Features
+
+<img src="docs/simple_view.png" width="300">
+
+- Status message showing "WORKING" / "REST"
+- Flip clock showing current session duration.
+- Pomodoro History
+  - Today's focus time distribution and total time.
+  - All past pomodoro session's information.
+
+![Youtube View](docs/youtube_view.png)
+
+- Youtube immersive view. 
+  - Play youtube video in the background, music will be played when you are working and not work overtime.
+  - Draggable status and flip clock panel.
 
 ### What if I left my camera but don't want to stop the Pomodoro session?
 
