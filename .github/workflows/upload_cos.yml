@@ -9,8 +9,8 @@ jobs:
 run: sudo pip install coscmd
   - name: Configure coscmd
 env:
-  SECRET_ID: ${{ secrets.SecretId }}
-  SECRET_KEY: ${{ secrets.SecretKey }}
+  SECRET_ID: ${{ secrets.CosUploadSecretId }}
+  SECRET_KEY: ${{ secrets.CosUploadSecretKey }}
   BUCKET: pomo-1254083249
   REGION: ap-shanghai
 run: coscmd config -a $SECRET_ID -s $SECRET_KEY -b $BUCKET -r $REGION
