@@ -5,8 +5,6 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@emotion/css": "^11.9.0",
-    "@material/top-app-bar": "^14.0.0",
-    "@rmwc/button": "^8.0.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
@@ -18,19 +16,17 @@
     "image-capture": "^0.4.0",
     "immer": "^9.0.15",
     "jquery": "^3.6.0",
-    "material-components-web": "^6.0.0",
     "moment": "^2.29.3",
     "react": "^18.1.0",
     "react-apexcharts": "^1.4.0",
-    "react-collapse": "^5.1.1",
-    "react-dom": "^18.1.0",
+    "react-dom": "^18.2.0",
     "react-draggable": "^4.4.5",
     "react-markdown": "^8.0.3",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^4.0.0",
     "react-webcam": "^7.0.1",
     "react-youtube": "^9.0.2",
     "rmwc": "^8.0.0",
-    "sass": "^1.52.3",
+    "source-map-explorer": "^2.5.2",
     "use-immer": "^0.7.0",
     "use-interval": "^1.4.0",
     "use-sound": "^4.0.1",
@@ -42,7 +38,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "eslintConfig": {
     "extends": [

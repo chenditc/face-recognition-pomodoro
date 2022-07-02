@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState, useContext } from 'react';
 import Webcam from "react-webcam";
 //import * as faceapi from 'face-api.js';
-import Human from '@vladmandic/human'
 
 import useInterval from 'use-interval'
 import { css } from '@emotion/css'
@@ -69,6 +68,7 @@ function PeriodicFaceDetection(props) {
 
   // Initialize ML
   useEffect(() => {
+    if (!enableDetection) return;
     const humanMLConfig = {
       modelBasePath: `https://cdn.jsdelivr.net/npm/@vladmandic/human/models/`,
       wasmPath: "/face-recognition-pomodoro/models/",
@@ -88,13 +88,16 @@ function PeriodicFaceDetection(props) {
       gesture: { enabled: false },
       debug: true
     }
-    humanML.current = new Human(humanMLConfig);
-    humanML.current.init(humanMLConfig).then(() => {
-      humanML.current.load(humanMLConfig);
-      console.log("Human init", humanML.current);
-    })
-
-  }, [])
+    import('@vladmandic/human').then(
+      (HumanModule) => {
+        humanML.current = new HumanModule.Human(humanMLConfig);
+        humanML.current.init(humanMLConfig).then(() => {
+          humanML.current.load(humanMLConfig);
+          console.log("Human init", humanML.current);
+        })
+      }
+    )
+  }, [enableDetection])
 
   // Detect face every n seconds
   useInterval(() => {

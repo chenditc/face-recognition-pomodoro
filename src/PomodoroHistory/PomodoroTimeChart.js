@@ -1,6 +1,8 @@
-import Chart from "react-apexcharts";
 import { formatSeconds, PomodoroCard} from "./PomodoroTimeCard";
-import {renderToString} from 'react-dom/server'
+import {renderToString} from 'react-dom/server';
+import React from "react";
+
+const Chart = React.lazy(() => import("react-apexcharts"));
 
 function PomodoroHistoryTimeChart(props) {
     const mergedTimeTable = props.mergedTimeTable.filter(
