@@ -33,6 +33,14 @@ function FaceRecognitionPomo() {
     ))
   }
 
+  function toggleMusic() {
+    setPomoConfigs(produce((oldConfig) => {
+      oldConfig.enablePlayer = !oldConfig.enablePlayer
+    }))
+  }
+
+  const music_icon = pomoConfigs.enablePlayer ? "volume_off" : "music_video"
+
   return (
     <>
       <ThemeProvider
@@ -53,6 +61,7 @@ function FaceRecognitionPomo() {
               </TopAppBarTitle>
             </TopAppBarSection>
             <TopAppBarSection alignEnd>
+              <TopAppBarActionItem icon={music_icon} onClick={() => toggleMusic()} />
               <TopAppBarActionItem icon="settings" onClick={() => setOpenConfigDialog(true)} />
             </TopAppBarSection>
           </TopAppBarRow>

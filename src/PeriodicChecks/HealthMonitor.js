@@ -194,9 +194,12 @@ function HealthMonitor(props) {
 
   return (
     <>
+      {
+        PomoConfigs.enablePlayer ?
       <Suspense fallback={<div>Loading...</div>}>
-      <PlayerWithStatus focus={lastTimeSlot.detected} overTime={overTime} startTime={lastTimeSlot.startTime} />
-      </Suspense>
+        <PlayerWithStatus focus={lastTimeSlot.detected} overTime={overTime} startTime={lastTimeSlot.startTime} />
+      </Suspense> : <></>
+      }
       <div className={
         css`
       margin: 0 15px;

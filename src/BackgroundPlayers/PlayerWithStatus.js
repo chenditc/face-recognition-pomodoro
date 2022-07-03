@@ -16,9 +16,6 @@ export function PlayerWithStatus(props) {
   const PomoConfigs = useContext(PomoConfigsContext);
   const youtubeUrl = PomoConfigs.playerUrl ? PomoConfigs.playerUrl : "";
   const youtubeVid = youtube_parser(youtubeUrl)
-  if (!youtubeVid) {
-    return (<></>)
-  }
 
   var shouldPlay = false;
   if (props.focus && !props.overTime) {

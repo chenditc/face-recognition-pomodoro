@@ -15,12 +15,13 @@ const defaultPomoConfigs = {
   faceRecognition: {
     detectionInterval: 5,
     scoreThreshold: 0.95,
-    showFaceRecognitionStatus: true,
+    showFaceRecognitionStatus: false,
     showFaceRecognitionCanvas: false,
     showCameraPreview: false,
   },
   enableDetection: false,
-  playerUrl: "",
+  enablePlayer: false,
+  playerUrl: "https://www.youtube.com/watch?v=q4YyeEM9jsc",
   focusNotificationText: "Time to focus!",
   restNotificationText: "Let's take a break."
 }
