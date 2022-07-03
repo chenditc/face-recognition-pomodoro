@@ -50,10 +50,6 @@ function HealthMonitor(props) {
     serializer: (v) => JSON.stringify(v),
     deserializer: (v) => {
       const storedTable = JSON.parse(v)
-      // Check diff between last end time and current time
-      if (new Date() - new Date(storedTable.at(-1).endTime) > alertStudySeconds * 1000) {
-        storedTable.push(getDefaultTimeSlot(true))
-      }
       // Keep only last maxLocalStorageTimeSlot session for now
       return storedTable.slice(0 - maxLocalStorageTimeSlot)
     }
@@ -120,13 +116,18 @@ function HealthMonitor(props) {
         draftMergeTable.pop();
       }
 
-      if (draftMergeTable.length === 0 || draftMergeTable.at(-1).detected !== currDetected) {
+      if (draftMergeTable.length === 0) {
+        draftMergeTable.push(getDefaultTimeSlot(currDetected))
+        return;
+      }
+
+      if (draftMergeTable.at(-1).detected !== currDetected) {
         draftMergeTable.push(getDefaultTimeSlot(currDetected, draftMergeTable.at(-1).endTime))
         return;
       }
 
       // If work time not refreshed for some time, start a new session, as computer lock will prevent camera show
-      if (draftMergeTable.at(-1).detected && (new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds) {
+      if (currDetected && draftMergeTable.at(-1).detected && (new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds) {
         // Add a rest session
         draftMergeTable.push(getDefaultTimeSlot(false, draftMergeTable.at(-1).endTime))
         // Add a work session
