@@ -5,7 +5,7 @@ const defaultPomoConfigs = {
   alertRestSeconds: 5 * 60,
   enableNotification: false,
   notificationIntervalSeconds: 60,
-  notificationIntervalMultiplier: 2,
+  notificationIntervalMultiplier: 1,
   tempMissingSeconds: 60,
   history: {
     maxLocalStorageTimeSlot: 100,
@@ -20,7 +20,7 @@ const defaultPomoConfigs = {
     showCameraPreview: false,
   },
   enableDetection: false,
-  playerUrl: "https://www.youtube.com/watch?v=q4YyeEM9jsc",
+  playerUrl: "",
   focusNotificationText: "Time to focus!",
   restNotificationText: "Let's take a break."
 }

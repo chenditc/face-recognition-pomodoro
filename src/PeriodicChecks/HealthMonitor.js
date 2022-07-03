@@ -4,7 +4,8 @@ import { css } from '@emotion/css'
 import { useLocalStorageState } from 'ahooks';
 import useSound from 'use-sound';
 import produce from 'immer';
-import { useContext } from 'react';
+import { useContext, Suspense } from 'react';
+import React from 'react';
 
 import { Grid, GridCell } from '@rmwc/grid'
 import '@rmwc/grid/styles';
@@ -13,13 +14,14 @@ import '@rmwc/snackbar/styles';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from '../flipclock/ReactFlipClock.js'
-import PomodoroList from '../PomodoroHistory/PomodoroList';
-import PomodoroHistoryTimeChart from '../PomodoroHistory/PomodoroTimeChart';
 import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext'
-import {PomoStatus} from '../PomodoroStatus/PomodStatus'
-import { PlayerWithStatus } from '../BackgroundPlayers/PlayerWithStatus';
+import { PomoStatus } from '../PomodoroStatus/PomodStatus'
 
-import {formatSeconds} from '../PomodoroHistory/PomodoroTimeCard'
+import { formatSeconds } from '../PomodoroHistory/PomodoroTimeCard'
+
+const PlayerWithStatus = React.lazy(() => import('../BackgroundPlayers/PlayerWithStatus'));
+const PomodoroList = React.lazy(() => import('../PomodoroHistory/PomodoroList'));
+const PomodoroHistoryTimeChart = React.lazy(() => import('../PomodoroHistory/PomodoroTimeChart'));
 
 function HealthMonitor(props) {
   const PomoConfigs = useContext(PomoConfigsContext);
@@ -90,7 +92,7 @@ function HealthMonitor(props) {
     // If it's okay let's create a notification
     playDingBellSfx();
     if (webNotificationSupported && Notification.permission === "granted") {
-      new Notification(message, {icon:icon, badge:icon});
+      new Notification(message, { icon: icon, badge: icon });
     }
 
     setSnackBarOpen(true);
@@ -143,9 +145,9 @@ function HealthMonitor(props) {
     setMergedTimeTable(
       mergedTimeTable.reduce((prevList, currentTimeSlot) => {
         const newList = prevList.slice();
-        if ((currentTimeSlot.startTime === startTime) || 
-            (prevList.at(-1) 
-            && prevList.at(-1).endTime === currentTimeSlot.startTime 
+        if ((currentTimeSlot.startTime === startTime) ||
+          (prevList.at(-1)
+            && prevList.at(-1).endTime === currentTimeSlot.startTime
             && prevList.at(-1).detected === currentTimeSlot.detected)) {
           // Merge slots
           const newObject = {
@@ -155,7 +157,7 @@ function HealthMonitor(props) {
           }
           newList.pop()
           newList.push(newObject);
-          return newList; 
+          return newList;
         }
         newList.push(currentTimeSlot);
         return newList;
@@ -192,9 +194,11 @@ function HealthMonitor(props) {
 
   return (
     <>
-      <PlayerWithStatus focus={lastTimeSlot.detected} overTime={overTime} startTime={lastTimeSlot.startTime}/>
-    <div className={
-      css`
+      <Suspense fallback={<div>Loading...</div>}>
+      <PlayerWithStatus focus={lastTimeSlot.detected} overTime={overTime} startTime={lastTimeSlot.startTime} />
+      </Suspense>
+      <div className={
+        css`
       margin: 0 15px;
       max-width: 700px;
       min-width: 350px;
@@ -202,42 +206,44 @@ function HealthMonitor(props) {
         margin: 0 auto;
       }
       `
-    }>
-      <Snackbar
-        open={snackbarOpen}
-        onClose={() => setSnackBarOpen(false)}
-        message={snackbarMessage}
-        dismissesOnAction
-        action={
-          <SnackbarAction
-            label="Dismiss"
-            onClick={() => console.log('Dismiss notification')}
-          />
-        }
-      />
-      <Grid>
-        <GridCell span={12}>
-          <PomoStatus focus={lastTimeSlot.detected} />
-        </GridCell>
-        <GridCell span={12}>
-          <ReactFlipClock startTime={lastTimeSlot.startTime} />
-        </GridCell>
-        <GridCell span={12}>
-          <PeriodicFaceDetection
-            onFaceDetectionResult={onFaceDetectionResult}
-          />
-        </GridCell>
-        {
-          PomoConfigs.history.showPomodoroHistory ?
-            <GridCell span={12}>
-                      <h3>Pomodoro History</h3>
-              <PomodoroHistoryTimeChart mergedTimeTable={mergedTimeTable} />
-              <PomodoroList mergedTimeTable={mergedTimeTable} onDeleteRestSession={deleteRestSession}/>
-            </GridCell> : <></>
-        }
-      </Grid>
+      }>
+        <Snackbar
+          open={snackbarOpen}
+          onClose={() => setSnackBarOpen(false)}
+          message={snackbarMessage}
+          dismissesOnAction
+          action={
+            <SnackbarAction
+              label="Dismiss"
+              onClick={() => console.log('Dismiss notification')}
+            />
+          }
+        />
+        <Grid>
+          <GridCell span={12}>
+            <PomoStatus focus={lastTimeSlot.detected} />
+          </GridCell>
+          <GridCell span={12}>
+            <ReactFlipClock startTime={lastTimeSlot.startTime} />
+          </GridCell>
+          <GridCell span={12}>
+            <PeriodicFaceDetection
+              onFaceDetectionResult={onFaceDetectionResult}
+            />
+          </GridCell>
+          {
+            PomoConfigs.history.showPomodoroHistory ?
+              <GridCell span={12}>
+                <h3>Pomodoro History</h3>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <PomodoroHistoryTimeChart mergedTimeTable={mergedTimeTable} />
+                  <PomodoroList mergedTimeTable={mergedTimeTable} onDeleteRestSession={deleteRestSession} />
+                </Suspense>
+              </GridCell> : <></>
+          }
+        </Grid>
 
-    </div>
+      </div>
     </>
   )
 }

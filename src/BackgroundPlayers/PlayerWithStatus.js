@@ -68,3 +68,5 @@ export function PlayerWithStatus(props) {
 
   )
 }
+
+export default PlayerWithStatus
