@@ -97,7 +97,7 @@ function PeriodicFaceDetection(props) {
         })
       }
     )
-  }, [enableDetection])
+  }, [])
 
   // Detect face every n seconds
   useInterval(() => {
