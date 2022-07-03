@@ -46,7 +46,7 @@ function HealthMonitor(props) {
     }
   }
   const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
-    defaultValue: [getDefaultTimeSlot(true)],
+    defaultValue: [],
     serializer: (v) => JSON.stringify(v),
     deserializer: (v) => {
       const storedTable = JSON.parse(v)
