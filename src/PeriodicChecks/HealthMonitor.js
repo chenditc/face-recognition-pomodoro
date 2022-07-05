@@ -167,6 +167,7 @@ function HealthMonitor(props) {
   }
 
   useInterval(() => {
+    if (!lastTimeSlot) return;
     // Update continue face time and continue rest time
     const timePeriod = (new Date() - new Date(lastTimeSlot.startTime)) / 1000
     if (lastTimeSlot.detected && (timePeriod > alertStudySeconds)) {
@@ -198,7 +199,7 @@ function HealthMonitor(props) {
       {
         PomoConfigs.enablePlayer ?
       <Suspense fallback={<div>Loading...</div>}>
-        <PlayerWithStatus focus={lastTimeSlot.detected} overTime={overTime} startTime={lastTimeSlot.startTime} />
+        <PlayerWithStatus focus={lastTimeSlot?.detected} overTime={overTime} startTime={lastTimeSlot?.startTime || new Date().toJSON()} />
       </Suspense> : <></>
       }
       <div className={
@@ -225,10 +226,10 @@ function HealthMonitor(props) {
         />
         <Grid>
           <GridCell span={12}>
-            <PomoStatus focus={lastTimeSlot.detected} />
+            <PomoStatus focus={lastTimeSlot?.detected} />
           </GridCell>
           <GridCell span={12}>
-            <ReactFlipClock startTime={lastTimeSlot.startTime} />
+            <ReactFlipClock startTime={lastTimeSlot?.startTime || new Date().toJSON()} />
           </GridCell>
           <GridCell span={12}>
             <PeriodicFaceDetection
