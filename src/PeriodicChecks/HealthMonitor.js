@@ -121,20 +121,19 @@ function HealthMonitor(props) {
         return;
       }
 
+      // If not refreshed for some time, start a new session, as computer lock will prevent camera show
+      if ((new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds) {
+        // Add a new session
+        draftMergeTable.push(getDefaultTimeSlot(currDetected, new Date().toJSON()))
+        return;
+      }
+
       if (draftMergeTable.at(-1).detected !== currDetected) {
         draftMergeTable.push(getDefaultTimeSlot(currDetected, draftMergeTable.at(-1).endTime))
         return;
       }
 
-      // If work time not refreshed for some time, start a new session, as computer lock will prevent camera show
-      if (currDetected && draftMergeTable.at(-1).detected && (new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds) {
-        // Add a rest session
-        draftMergeTable.push(getDefaultTimeSlot(false, draftMergeTable.at(-1).endTime))
-        // Add a work session
-        draftMergeTable.push(getDefaultTimeSlot(true, new Date().toJSON()))
-        return;
-      }
-
+      // Extend current time
       draftMergeTable.at(-1).endTime = new Date().toJSON()
       draftMergeTable.at(-1).timePeriod = (new Date() - new Date(draftMergeTable.at(-1).startTime)) / 1000
 
