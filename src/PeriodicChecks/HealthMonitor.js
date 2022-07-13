@@ -109,16 +109,17 @@ function HealthMonitor(props) {
     // calculate continue time
     const NewMergedTimeTable = produce(mergedTimeTable, (draftMergeTable) => {
       const currDetected = (detection !== undefined)
+
+      if (draftMergeTable.length === 0) {
+        draftMergeTable.push(getDefaultTimeSlot(currDetected))
+        return;
+      }
+
       if (draftMergeTable.at(-1).detected !== currDetected
         && (draftMergeTable.at(-1).timePeriod < tempMissingSeconds)) {
         // If last section is less than tempMissingSeconds seconds
         // remove last section so that we have a more continous time range.
         draftMergeTable.pop();
-      }
-
-      if (draftMergeTable.length === 0) {
-        draftMergeTable.push(getDefaultTimeSlot(currDetected))
-        return;
       }
 
       // If not refreshed for some time, start a new session, as computer lock will prevent camera show
