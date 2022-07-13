@@ -123,9 +123,10 @@ function HealthMonitor(props) {
       }
 
       // If not refreshed for some time, start a new session, as computer lock will prevent camera show
-      if ((new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds) {
+      if (currDetected && ((new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * PomoConfigs.tempMissingSeconds)) {
         // Add a new session
-        draftMergeTable.push(getDefaultTimeSlot(currDetected, new Date().toJSON()))
+        draftMergeTable.push(getDefaultTimeSlot(false, draftMergeTable.at(-1).endTime))
+        draftMergeTable.push(getDefaultTimeSlot(true, new Date().toJSON()))
         return;
       }
 
