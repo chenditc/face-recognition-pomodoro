@@ -56,10 +56,13 @@ function PeriodicFaceDetection(props) {
   const [cameraReady, setCameraReady] = useState(false);
 
   const onFaceDetectionResult = props.onFaceDetectionResult
-  const detectionInterval = PomoConfigs.faceRecognition.detectionInterval;
+  const minDetectionInterval = PomoConfigs.faceRecognition.minDetectionInterval;
+  const maxDetectionInterval = PomoConfigs.faceRecognition.maxDetectionInterval;
+  const [nextDetectionInterval, setNextDetectionInterval] = useState(minDetectionInterval);
   const scoreThreshold = PomoConfigs.faceRecognition.scoreThreshold;
   const enableDetection = PomoConfigs.enableDetection;
   const [detectionRunning, setDetectionRunning] = useState(false);
+  const [lastDetectionTime, setLastDetectionTime] = useState(new Date());
   const videoTrackRef = useRef(null);
   
   const humanML = useRef(null);
@@ -97,14 +100,13 @@ function PeriodicFaceDetection(props) {
         })
       }
     )
-  }, [])
+  }, [enableDetection])
 
   // Detect face every n seconds
   useInterval(() => {
     if (!enableDetection) return;
     if (detectionRunning) return;
     if (!humanML.current) return;
-
     const newCameraReady = (videoTrackRef.current 
       && videoTrackRef.current.readyState === "live" 
       && !videoTrackRef.current.muted 
@@ -115,7 +117,13 @@ function PeriodicFaceDetection(props) {
     }
     if (!newCameraReady) return;
 
+    // No need to detect for now.
+    const nextDetectionTime  = new Date(lastDetectionTime).setSeconds(lastDetectionTime.getSeconds() + nextDetectionInterval);
+    if (nextDetectionTime > new Date()) return;
+    setLastDetectionTime(new Date())
+
     async function detectUsingModel() {
+
       try {
         setDetectionRunning(true);
 
@@ -129,8 +137,18 @@ function PeriodicFaceDetection(props) {
         const detectionResult = await humanML.current.detect(input)
         const detectedFace = detectionResult.face.filter((x) => x.score > scoreThreshold).at(-1)
         onFaceDetectionResult(detectedFace);
+
+        const lastDetected = detectedFace === undefined;
+        const currentDetected = detected === undefined;
+        if (lastDetected === currentDetected) {
+          setNextDetectionInterval(Math.min(nextDetectionInterval + 5, maxDetectionInterval));
+        }
+        else {
+          setNextDetectionInterval(minDetectionInterval);
+        }
+
         setDetected(detectedFace);
-        //console.log("Detection used ", ((new Date() - startTime).toString()), "ms");
+        console.log(new Date(), "Deteced face", detectedFace)
 
         if (PomoConfigs.faceRecognition.showFaceRecognitionCanvas) {
           humanML.current.draw.canvas(input, canvasRef.current)
@@ -143,7 +161,7 @@ function PeriodicFaceDetection(props) {
     }
 
     detectUsingModel()
-  }, detectionInterval * 1000, true)
+  }, 1000, true)
 
   function onUserMedia(stream) {
     console.log("New media stream", stream)

@@ -13,7 +13,8 @@ const defaultPomoConfigs = {
     onlyShowToday: true,
   },
   faceRecognition: {
-    detectionInterval: 5,
+    minDetectionInterval: 5,
+    maxDetectionInterval: 30,
     scoreThreshold: 0.95,
     showFaceRecognitionStatus: false,
     showFaceRecognitionCanvas: false,

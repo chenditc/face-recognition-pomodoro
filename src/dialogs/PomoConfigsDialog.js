@@ -120,14 +120,29 @@ function PomoConfigsDialog(props) {
                 </GridCell>
                 <GridCell>
                   <Tooltip content="Every n seconds we detect user face, shorter interval might increase CPU usage, longer interval might make pomodoro less sensitive.">
-                    <TextField required label="Face Detection Interval" type="number"
+                    <TextField required label="Minimum Face Detection Interval" type="number"
                       pattern="[0-9]*" suffix="seconds" min={2}
-                      defaultValue={props.pomoConfigs.faceRecognition.detectionInterval}
+                      defaultValue={props.pomoConfigs.faceRecognition.minDetectionInterval}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
                         const newTime = parseInt(event.target.value)
                         setNewPomoConfig(
-                          (oldConfig) => { oldConfig.faceRecognition.detectionInterval = newTime }
+                          (oldConfig) => { oldConfig.faceRecognition.minDetectionInterval = newTime }
+                        )
+                      }}
+                    />
+                  </Tooltip>
+                </GridCell>
+                <GridCell>
+                  <Tooltip content="Every n seconds we detect user face, shorter interval might increase CPU usage, longer interval might make pomodoro less sensitive.">
+                    <TextField required label="Maximum Face Detection Interval" type="number"
+                      pattern="[0-9]*" suffix="seconds" min={2}
+                      defaultValue={props.pomoConfigs.faceRecognition.maxDetectionInterval}
+                      onChange={(event) => {
+                        if (!event.target.reportValidity()) return;
+                        const newTime = parseInt(event.target.value)
+                        setNewPomoConfig(
+                          (oldConfig) => { oldConfig.faceRecognition.maxDetectionInterval = newTime }
                         )
                       }}
                     />
