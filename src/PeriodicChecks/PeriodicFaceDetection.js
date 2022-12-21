@@ -180,7 +180,7 @@ function PeriodicFaceDetection(props) {
   if (enableDetection && !showCameraPreview && navigator.mediaDevices.getSupportedConstraints) {
     const videoConstraintAbility = navigator.mediaDevices.getSupportedConstraints();
     if (videoConstraintAbility.frameRate) {
-      videoConstraints["frameRate"] = { ideal: 2 }
+      videoConstraints["frameRate"] = { min: 0, ideal: 1, max: 2 }
     }
   }
 
