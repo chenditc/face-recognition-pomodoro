@@ -72,8 +72,6 @@ function PeriodicFaceDetection(props) {
   const showFaceRecognitionStatus = enableDetection ? (PomoConfigs.faceRecognition.showFaceRecognitionStatus || detected === undefined) : false;
   const showCameraPreview = enableDetection ? (PomoConfigs.faceRecognition.showCameraPreview || detected === undefined) : false;
 
-  console.log("showFaceRecognitionStatus", showFaceRecognitionStatus, "showCameraPreview", showCameraPreview, detected)
-
   // Initialize ML
   useEffect(() => {
     if (!enableDetection) return;
