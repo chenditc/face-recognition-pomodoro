@@ -1,5 +1,6 @@
 name: Upload to COS
-on: [push]
+  push:
+    branches: ["gh-pages"]
 jobs:
   build:
     runs-on: ubuntu-latest
