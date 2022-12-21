@@ -177,7 +177,7 @@ function PeriodicFaceDetection(props) {
     facingMode: "user",
   }
   // Save bandwidth by reducing framerate
-  if (enableDetection && !showCameraPreview && navigator.mediaDevices.getSupportedConstraints) {
+  if (navigator.mediaDevices.getSupportedConstraints) {
     const videoConstraintAbility = navigator.mediaDevices.getSupportedConstraints();
     if (videoConstraintAbility.frameRate) {
       videoConstraints["frameRate"] = { min: 0, ideal: 1, max: 2 }
