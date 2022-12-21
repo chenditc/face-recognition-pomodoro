@@ -51,7 +51,7 @@ function PeriodicFaceDetection(props) {
   const PomoConfigs = useContext(PomoConfigsContext)
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
-  const [detected, setDetected] = useState(false)
+  const [detected, setDetected] = useState(undefined)
   const [cameraSupported] = useState('mediaDevices' in navigator);
   const [cameraReady, setCameraReady] = useState(false);
 
@@ -68,6 +68,11 @@ function PeriodicFaceDetection(props) {
   const humanML = useRef(null);
 
   const imageCaptureSupported = 'ImageCapture' in window;
+
+  const showFaceRecognitionStatus = enableDetection ? (PomoConfigs.faceRecognition.showFaceRecognitionStatus || detected === undefined) : false;
+  const showCameraPreview = enableDetection ? (PomoConfigs.faceRecognition.showCameraPreview || detected === undefined) : false;
+
+  console.log("showFaceRecognitionStatus", showFaceRecognitionStatus, "showCameraPreview", showCameraPreview, detected)
 
   // Initialize ML
   useEffect(() => {
@@ -174,7 +179,7 @@ function PeriodicFaceDetection(props) {
     facingMode: "user",
   }
   // Save bandwidth by reducing framerate
-  if (enableDetection && !PomoConfigs.faceRecognition.showCameraPreview && navigator.mediaDevices.getSupportedConstraints) {
+  if (enableDetection && !showCameraPreview && navigator.mediaDevices.getSupportedConstraints) {
     const videoConstraintAbility = navigator.mediaDevices.getSupportedConstraints();
     if (videoConstraintAbility.frameRate) {
       videoConstraints["frameRate"] = { ideal: 2 }
@@ -183,17 +188,19 @@ function PeriodicFaceDetection(props) {
 
   // If image capture is not supported, we will need to read from video element.
   // Video element won't update if it's not in view
+
   const hiddenCameraHeight = imageCaptureSupported ? "0px" : "1px";
-  const cameraHeight = PomoConfigs.faceRecognition.showCameraPreview ? "100%" : hiddenCameraHeight
+  const cameraHeight = showCameraPreview ? "100%" : hiddenCameraHeight
   const loadedModelCount = humanML.current ? Object.keys(humanML.current.models).filter((model) => (humanML.current.models[model] !== null)).length : 0;
   const currentProgress = cameraSupported * 0.1 + cameraReady * 0.4 + 0.5 * (loadedModelCount / 2);
+
   return (
     <>
       <Grid>
       
         <GridCell span={12}>
           <LinearProgress closed={currentProgress >= 1} progress={currentProgress} />
-          {enableDetection && PomoConfigs.faceRecognition.showFaceRecognitionStatus ?
+          { showFaceRecognitionStatus  ?
             GetFaceDetectionStatus(cameraSupported, cameraReady, detected, loadedModelCount) : <></>}
         </GridCell>
 
