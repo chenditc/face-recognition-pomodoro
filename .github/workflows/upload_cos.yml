@@ -1,4 +1,5 @@
 name: Upload to COS
+on:
   push:
     branches: ["gh-pages"]
 jobs:
