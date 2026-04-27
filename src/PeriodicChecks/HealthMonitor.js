@@ -308,6 +308,19 @@ function HealthMonitor(props) {
                     display: inline-block;
                   `}>
                     姿势提醒 · {remainingMin}min 后
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setLastPostureSwitchTime(new Date().toJSON());
+                      }}
+                      className={css`
+                        margin-left: 8px;
+                        color: #bbb;
+                        text-decoration: none;
+                        &:hover { color: #666; }
+                      `}
+                    >重置</a>
                   </span>
                 </div>
               </GridCell>
