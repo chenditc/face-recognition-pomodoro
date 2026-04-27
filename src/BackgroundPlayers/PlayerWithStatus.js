@@ -7,15 +7,24 @@ import { useContext } from 'react';
 import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext';
 
 function youtube_parser(url){
+  // Check for playlist URL
+  const listMatch = url.match(/[?&]list=([^#&]+)/);
+  if (listMatch) {
+    // If there's also a video ID, extract it for starting point
+    const vidMatch = url.match(/[?&]v=([^#&]{11})/);
+    return { type: 'playlist', listId: listMatch[1], vid: vidMatch ? vidMatch[1] : undefined };
+  }
+  // Single video
   var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
   var match = url.match(regExp);
-  return (match&&match[7].length===11)? match[7] : false;
+  const vid = (match&&match[7].length===11)? match[7] : false;
+  return vid ? { type: 'video', vid } : false;
 }
 
 export function PlayerWithStatus(props) {
   const PomoConfigs = useContext(PomoConfigsContext);
   const youtubeUrl = PomoConfigs.playerUrl ? PomoConfigs.playerUrl : "";
-  const youtubeVid = youtube_parser(youtubeUrl)
+  const parsed = youtube_parser(youtubeUrl)
 
   var shouldPlay = false;
   if (props.focus && !props.overTime) {
@@ -31,7 +40,7 @@ export function PlayerWithStatus(props) {
 
   return (
     <div className={playerStatusClassName}>
-      <YoutubePlayer vid={youtubeVid} shouldPlay={shouldPlay}/>
+      <YoutubePlayer parsed={parsed} shouldPlay={shouldPlay}/>
       <div>
         <Draggable bounds={"." + playerStatusClassName}>
           <div className={css`

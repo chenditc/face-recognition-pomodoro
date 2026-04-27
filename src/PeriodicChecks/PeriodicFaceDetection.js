@@ -80,6 +80,10 @@ function PeriodicFaceDetection(props) {
       wasmPath: "/face-recognition-pomodoro/models/",
       face: {
         enabled: true,
+        detector: {
+          modelPath: 'blazeface-back.json',
+          rotation: true,
+        },
         emotion: { enabled: false },
         antispoof: { enabled: false },
         liveness: { enabled: false },

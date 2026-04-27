@@ -11,6 +11,10 @@ import { Grid, GridCell } from '@rmwc/grid'
 import '@rmwc/grid/styles';
 import { Snackbar, SnackbarAction } from '@rmwc/snackbar';
 import '@rmwc/snackbar/styles';
+import { Button } from '@rmwc/button';
+import '@rmwc/button/styles';
+import { LinearProgress } from '@rmwc/linear-progress';
+import '@rmwc/linear-progress/styles';
 
 import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from '../flipclock/ReactFlipClock.js'
@@ -61,6 +65,15 @@ function HealthMonitor(props) {
   const [playDingBellSfx] = useSound(process.env.PUBLIC_URL + '/sounds/dingbell.aac');
 
   const tempMissingSeconds = PomoConfigs.tempMissingSeconds;
+
+  const [lastPostureSwitchTime, setLastPostureSwitchTime] = useLocalStorageState('lastPostureSwitchTime', {
+    defaultValue: new Date().toJSON(),
+    serializer: (v) => JSON.stringify(v),
+    deserializer: (v) => JSON.parse(v),
+  });
+  const [postureReminderSent, setPostureReminderSent] = useLocalStorageState('postureReminderSent', {
+    defaultValue: false,
+  });
 
   const [webNotificationSupported, setWebNotificationSupported] = useState(false)
 
@@ -141,6 +154,14 @@ function HealthMonitor(props) {
 
     })
     setMergedTimeTable(NewMergedTimeTable);
+
+    // Reset posture timer only on a real rest break (not brief detection loss)
+    const currDetected = (detection !== undefined);
+    if (currDetected && mergedTimeTable.length > 0 && !mergedTimeTable.at(-1).detected
+        && mergedTimeTable.at(-1).timePeriod >= tempMissingSeconds) {
+      setLastPostureSwitchTime(new Date().toJSON());
+      setPostureReminderSent(false);
+    }
   }
 
   function deleteRestSession(startTime) {
@@ -193,6 +214,21 @@ function HealthMonitor(props) {
     if ((timePeriod > PomoConfigs.tempMissingSeconds) && (Object.keys(notificationHistory).length > 0)) {
       setNotificationHistory({})
     }
+
+    // Posture reminder check
+    if (PomoConfigs.postureReminder?.enabled && lastTimeSlot?.detected) {
+      const secondsSincePostureSwitch = (new Date() - new Date(lastPostureSwitchTime)) / 1000;
+      if (secondsSincePostureSwitch > PomoConfigs.postureReminder.intervalMinutes * 60 && !postureReminderSent) {
+        const message = PomoConfigs.postureReminder.notificationText;
+        playDingBellSfx();
+        if (webNotificationSupported && Notification.permission === "granted") {
+          new Notification(message);
+        }
+        setSnackBarOpen(true);
+        setSnackBarMessage(message);
+        setPostureReminderSent(true);
+      }
+    }
   }, 500, true)
 
   return (
@@ -232,6 +268,51 @@ function HealthMonitor(props) {
           <GridCell span={12}>
             <ReactFlipClock startTime={lastTimeSlot?.startTime || new Date().toJSON()} />
           </GridCell>
+          {PomoConfigs.postureReminder?.enabled && (() => {
+            const elapsed = (new Date() - new Date(lastPostureSwitchTime)) / 1000;
+            const total = PomoConfigs.postureReminder.intervalMinutes * 60;
+            const progress = Math.min(elapsed / total, 1);
+            const remaining = Math.max(total - elapsed, 0);
+            const remainingMin = Math.ceil(remaining / 60);
+
+            if (postureReminderSent) {
+              return (
+                <GridCell span={12}>
+                  <div className={css`text-align: center;`}>
+                    <Button
+                      raised
+                      theme={['secondaryBg', 'onSecondary']}
+                      onClick={() => {
+                        setLastPostureSwitchTime(new Date().toJSON());
+                        setPostureReminderSent(false);
+                      }}
+                      label="已切换姿势"
+                    />
+                  </div>
+                </GridCell>
+              );
+            }
+
+            return (
+              <GridCell span={12}>
+                <div className={css`
+                  max-width: 300px;
+                  margin: 0 auto;
+                  text-align: center;
+                `}>
+                  <LinearProgress progress={progress} />
+                  <span className={css`
+                    font-size: 12px;
+                    color: #999;
+                    margin-top: 4px;
+                    display: inline-block;
+                  `}>
+                    姿势提醒 · {remainingMin}min 后
+                  </span>
+                </div>
+              </GridCell>
+            );
+          })()}
           <GridCell span={12}>
             <PeriodicFaceDetection
               onFaceDetectionResult={onFaceDetectionResult}

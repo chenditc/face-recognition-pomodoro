@@ -98,6 +98,53 @@ function PomoConfigsDialog(props) {
             </GridCell>
             <GridCell span={12}><ListDivider /></GridCell>
             <GridCell span={12}>
+              <GridRow>
+                <GridCell span={12}>
+                  <Typography use="subtitle2">Posture Reminder Config</Typography>
+                </GridCell>
+                <GridCell>
+                  <Switch
+                    defaultChecked={props.pomoConfigs.postureReminder?.enabled}
+                    onChange={(event) => {
+                      setNewPomoConfig(
+                        (oldConfig) => { oldConfig.postureReminder.enabled = event.target.checked }
+                      )
+                    }}
+                    label="Enable Posture Reminder"
+                  />
+                </GridCell>
+                <GridCell>
+                  <Tooltip content="After this many minutes of continuous work, you'll be reminded to switch posture (sit/stand).">
+                    <TextField required label="Posture Switch Interval" type="number"
+                      suffix="minutes" pattern="[0-9]*" min={1}
+                      defaultValue={props.pomoConfigs.postureReminder?.intervalMinutes}
+                      onChange={(event) => {
+                        if (!event.target.reportValidity()) return;
+                        setNewPomoConfig(
+                          (oldConfig) => { oldConfig.postureReminder.intervalMinutes = parseInt(event.target.value) }
+                        )
+                      }}
+                    />
+                  </Tooltip>
+                </GridCell>
+                <GridCell span={12}>
+                  <Tooltip content="This message will be displayed when it's time to switch posture.">
+                    <TextField style={{width: "100%"}} required label="Posture Reminder Message"
+                      minLength={1}
+                      defaultValue={props.pomoConfigs.postureReminder?.notificationText}
+                      onChange={(event) => {
+                        if (!event.target.reportValidity()) return;
+                        setNewPomoConfig(
+                          (oldConfig) => { oldConfig.postureReminder.notificationText = event.target.value }
+                        )
+                      }}
+                    />
+                  </Tooltip>
+                </GridCell>
+              </GridRow>
+            </GridCell>
+            <GridCell span={12}><ListDivider /></GridCell>
+            <GridCell span={12}>
               <Typography use="subtitle2">Background Video Config</Typography>
             </GridCell>
             <GridCell span={12}>

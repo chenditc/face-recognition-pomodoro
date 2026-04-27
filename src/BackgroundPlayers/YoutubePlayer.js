@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 export function YoutubePlayer(props) {
   const playerRef = useRef(null);
   const shouldPlay = props.shouldPlay;
+  const parsed = props.parsed;
 
   const opts = {
     height: '100%',
@@ -12,10 +13,17 @@ export function YoutubePlayer(props) {
     playerVars: {
       // https://developers.google.com/youtube/player_parameters
       autoplay: 1,
-      loop: 1,
-      playlist: props.vid,
     },
   };
+
+  // Configure for playlist or single video
+  if (parsed && parsed.type === 'playlist') {
+    opts.playerVars.listType = 'playlist';
+    opts.playerVars.list = parsed.listId;
+  } else if (parsed && parsed.type === 'video') {
+    opts.playerVars.loop = 1;
+    opts.playerVars.playlist = parsed.vid;
+  }
 
   useEffect(() => {
     if (!playerRef.current) return;
@@ -28,6 +36,8 @@ export function YoutubePlayer(props) {
     }
   }, [shouldPlay])
 
+  const videoId = parsed && parsed.type === 'video' ? parsed.vid : undefined;
+
   return (
       <YouTube className={
         css`
@@ -35,7 +45,7 @@ export function YoutubePlayer(props) {
           width: 100%;
           position: relative;
         `
-      } ref={playerRef} videoId={props.vid} opts={opts} />
+      } ref={playerRef} videoId={videoId} opts={opts} />
   );
 
 }

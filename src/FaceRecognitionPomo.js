@@ -17,7 +17,18 @@ import IntroDialog from "./dialogs/IntroDialog";
 
 function FaceRecognitionPomo() {
   const [pomoConfigs, setPomoConfigs] = useLocalStorageState("pomoConfig", {
-    defaultValue: defaultPomoConfigs
+    defaultValue: defaultPomoConfigs,
+    deserializer: (v) => {
+      const stored = JSON.parse(v);
+      // Deep merge with defaults so new config fields are picked up
+      return {
+        ...defaultPomoConfigs,
+        ...stored,
+        history: { ...defaultPomoConfigs.history, ...stored.history },
+        faceRecognition: { ...defaultPomoConfigs.faceRecognition, ...stored.faceRecognition },
+        postureReminder: { ...defaultPomoConfigs.postureReminder, ...stored.postureReminder },
+      };
+    }
   })
 
   const [openConfigDialog, setOpenConfigDialog] = useState(false);

@@ -15,10 +15,15 @@ const defaultPomoConfigs = {
   faceRecognition: {
     minDetectionInterval: 5,
     maxDetectionInterval: 40,
-    scoreThreshold: 0.95,
+    scoreThreshold: 0.65,
     showFaceRecognitionStatus: false,
     showFaceRecognitionCanvas: false,
     showCameraPreview: false,
+  },
+  postureReminder: {
+    enabled: true,
+    intervalMinutes: 30,
+    notificationText: "You've been sitting for a while. Time to switch posture!",
   },
   enableDetection: false,
   enablePlayer: false,
