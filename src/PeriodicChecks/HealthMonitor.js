@@ -157,8 +157,10 @@ function HealthMonitor(props) {
 
     // Reset posture timer only on a real rest break (not brief detection loss)
     const currDetected = (detection !== undefined);
+    const lastSlotRestElapsed = mergedTimeTable.length > 0
+      ? (new Date() - new Date(mergedTimeTable.at(-1).startTime)) / 1000 : 0;
     if (currDetected && mergedTimeTable.length > 0 && !mergedTimeTable.at(-1).detected
-        && mergedTimeTable.at(-1).timePeriod >= tempMissingSeconds) {
+        && lastSlotRestElapsed >= tempMissingSeconds) {
       setLastPostureSwitchTime(new Date().toJSON());
       setPostureReminderSent(false);
     }
