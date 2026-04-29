@@ -1,6 +1,10 @@
 import React from 'react';
+import { defaultLocale, getDefaultNotificationMessages } from '../i18n';
+
+const defaultNotificationMessages = getDefaultNotificationMessages(defaultLocale);
 
 const defaultPomoConfigs = {
+  locale: defaultLocale,
   alertStudySeconds: 25 * 60,
   alertRestSeconds: 5 * 60,
   enableNotification: false,
@@ -15,6 +19,7 @@ const defaultPomoConfigs = {
   faceRecognition: {
     minDetectionInterval: 5,
     maxDetectionInterval: 40,
+    missingFaceRetryIntervalSeconds: 1,
     scoreThreshold: 0.65,
     showFaceRecognitionStatus: false,
     showFaceRecognitionCanvas: false,
@@ -23,13 +28,13 @@ const defaultPomoConfigs = {
   postureReminder: {
     enabled: true,
     intervalMinutes: 30,
-    notificationText: "You've been sitting for a while. Time to switch posture!",
+    notificationText: defaultNotificationMessages.postureReminderText,
   },
   enableDetection: false,
   enablePlayer: false,
   playerUrl: "https://www.youtube.com/watch?v=tfBVp0Zi2iE",
-  focusNotificationText: "Time to focus!",
-  restNotificationText: "Let's take a break."
+  focusNotificationText: defaultNotificationMessages.focusNotificationText,
+  restNotificationText: defaultNotificationMessages.restNotificationText,
 }
 const PomoConfigsContext = React.createContext(defaultPomoConfigs);
 

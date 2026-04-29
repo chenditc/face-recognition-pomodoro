@@ -20,6 +20,7 @@ import PeriodicFaceDetection from './PeriodicFaceDetection';
 import ReactFlipClock from '../flipclock/ReactFlipClock.js'
 import { PomoConfigsContext } from '../UserConfigs/PomoConfigsContext'
 import { PomoStatus } from '../PomodoroStatus/PomodStatus'
+import { useI18n } from '../i18n';
 
 import { formatSeconds } from '../PomodoroHistory/PomodoroTimeCard'
 
@@ -29,6 +30,7 @@ const PomodoroHistoryTimeChart = React.lazy(() => import('../PomodoroHistory/Pom
 
 function HealthMonitor(props) {
   const PomoConfigs = useContext(PomoConfigsContext);
+  const { locale, t } = useI18n();
 
   const alertStudySeconds = PomoConfigs.alertStudySeconds;
   const alertRestSeconds = PomoConfigs.alertRestSeconds;
@@ -210,7 +212,7 @@ function HealthMonitor(props) {
       return;
     }
 
-    document.title = formatSeconds(timePeriod, true);
+    document.title = formatSeconds(timePeriod, true, locale);
     setOverTime(false);
     // Only change when there is some item, prevent rerender
     if ((timePeriod > PomoConfigs.tempMissingSeconds) && (Object.keys(notificationHistory).length > 0)) {
@@ -237,7 +239,7 @@ function HealthMonitor(props) {
     <>
       {
         PomoConfigs.enablePlayer ?
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>{t('common.loading')}</div>}>
         <PlayerWithStatus focus={lastTimeSlot?.detected} overTime={overTime} startTime={lastTimeSlot?.startTime || new Date().toJSON()} />
       </Suspense> : <></>
       }
@@ -258,7 +260,7 @@ function HealthMonitor(props) {
           dismissesOnAction
           action={
             <SnackbarAction
-              label="Dismiss"
+              label={t('common.dismiss')}
               onClick={() => console.log('Dismiss notification')}
             />
           }
@@ -288,7 +290,7 @@ function HealthMonitor(props) {
                         setLastPostureSwitchTime(new Date().toJSON());
                         setPostureReminderSent(false);
                       }}
-                      label="已切换姿势"
+                      label={t('posture.switched')}
                     />
                   </div>
                 </GridCell>
@@ -309,7 +311,7 @@ function HealthMonitor(props) {
                     margin-top: 4px;
                     display: inline-block;
                   `}>
-                    姿势提醒 · {remainingMin}min 后
+                    {t('posture.reminderWithRemaining', { minutes: remainingMin })}
                     <a
                       href="#"
                       onClick={(e) => {
@@ -322,7 +324,7 @@ function HealthMonitor(props) {
                         text-decoration: none;
                         &:hover { color: #666; }
                       `}
-                    >重置</a>
+                    >{t('common.reset')}</a>
                   </span>
                 </div>
               </GridCell>
@@ -336,8 +338,8 @@ function HealthMonitor(props) {
           {
             PomoConfigs.history.showPomodoroHistory ?
               <GridCell span={12}>
-                <h3>Pomodoro History</h3>
-                <Suspense fallback={<div>Loading...</div>}>
+                <h3>{t('history.title')}</h3>
+                <Suspense fallback={<div>{t('common.loading')}</div>}>
                   <PomodoroHistoryTimeChart mergedTimeTable={mergedTimeTable} />
                   <PomodoroList mergedTimeTable={mergedTimeTable} onDeleteRestSession={deleteRestSession} />
                 </Suspense>

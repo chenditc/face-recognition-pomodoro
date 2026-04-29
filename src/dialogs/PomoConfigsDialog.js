@@ -16,10 +16,12 @@ import '@rmwc/list/styles';
 import './PomoConfigsDialog.css'
 import { useImmer } from "use-immer";
 import { useRef, useState } from 'react';
+import { supportedLocales, syncLocaleDefaults, useI18n } from '../i18n';
 
 function PomoConfigsDialog(props) {
   const formRef = useRef(null);
   const [newPomoConfig, setNewPomoConfig] = useImmer(props.pomoConfigs);
+  const { t } = useI18n();
 
   const [formValid, setFormValid] = useState(true);
 
@@ -35,12 +37,12 @@ function PomoConfigsDialog(props) {
         }}
         onClose={(event) => {
           if (event.target.action === "confirm") {
-            props.setPomoConfigs(newPomoConfig);
+            props.setPomoConfigs(syncLocaleDefaults(props.pomoConfigs, newPomoConfig));
           }
           props.onClose()
         }}
       >
-        <DialogTitle>Configuration</DialogTitle>
+        <DialogTitle>{t('config.title')}</DialogTitle>
         <DialogContent>
           <form ref={formRef} onChange={() => {
             const newValid = formRef.current && formRef.current.reportValidity();
@@ -51,11 +53,45 @@ function PomoConfigsDialog(props) {
             <GridCell span={12}>
               <GridRow>
                 <GridCell span={12}>
-                  <Typography use="subtitle2">Pomodoro Config</Typography>
+                  <Typography use="subtitle2">{t('config.sections.general')}</Typography>
                 </GridCell>
                 <GridCell span={4}>
-                  <TextField required label="Focus Time" type="number"
-                    suffix="minutes" pattern="[0-9]*" min={1}
+                  <Tooltip content={t('config.tooltips.language')}>
+                    <label style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <Typography use="body2">{t('config.labels.appLanguage')}</Typography>
+                      <select
+                        value={newPomoConfig.locale}
+                        onChange={(event) => {
+                          setNewPomoConfig((oldConfig) => { oldConfig.locale = event.target.value })
+                        }}
+                        style={{
+                          height: "40px",
+                          borderRadius: "4px",
+                          border: "1px solid rgba(0, 0, 0, 0.38)",
+                          padding: "0 12px",
+                          background: "white",
+                        }}
+                      >
+                        {supportedLocales.map((localeOption) => (
+                          <option key={localeOption.value} value={localeOption.value}>
+                            {localeOption.value === 'en' ? t('common.english') : t('common.chinese')}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </Tooltip>
+                </GridCell>
+              </GridRow>
+            </GridCell>
+            <GridCell span={12}><ListDivider /></GridCell>
+            <GridCell span={12}>
+              <GridRow>
+                <GridCell span={12}>
+                  <Typography use="subtitle2">{t('config.sections.pomodoro')}</Typography>
+                </GridCell>
+                <GridCell span={4}>
+                  <TextField required label={t('config.labels.focusTime')} type="number"
+                    suffix={t('common.minutes')} pattern="[0-9]*" min={1}
                     defaultValue={props.pomoConfigs.alertStudySeconds / 60}
                     onChange={(event) => {
                       if (!event.target.validity.valid) {
@@ -69,8 +105,8 @@ function PomoConfigsDialog(props) {
                   />
                 </GridCell>
                 <GridCell span={4}>
-                  <TextField required label="Rest Time" type="number"
-                    suffix="minutes" pattern="[0-9]*" min={1}
+                  <TextField required label={t('config.labels.restTime')} type="number"
+                    suffix={t('common.minutes')} pattern="[0-9]*" min={1}
                     defaultValue={props.pomoConfigs.alertRestSeconds / 60}
                     onChange={(event) => {
                       if (!event.target.reportValidity()) return;
@@ -81,9 +117,9 @@ function PomoConfigsDialog(props) {
                   />
                 </GridCell>
                 <GridCell span={4}>
-                  <Tooltip content="If the rest time or focus time is less than this, it will not be counted as a separted time slot.">
-                    <TextField required label="Max allowed missing time" type="number"
-                      suffix="seconds" pattern="[0-9]*" min={0}
+                  <Tooltip content={t('config.tooltips.maxAllowedMissingTime')}>
+                    <TextField required label={t('config.labels.maxAllowedMissingTime')} type="number"
+                      suffix={t('common.seconds')} pattern="[0-9]*" min={0}
                       defaultValue={props.pomoConfigs.tempMissingSeconds}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
@@ -100,7 +136,7 @@ function PomoConfigsDialog(props) {
             <GridCell span={12}>
               <GridRow>
                 <GridCell span={12}>
-                  <Typography use="subtitle2">Posture Reminder Config</Typography>
+                  <Typography use="subtitle2">{t('config.sections.posture')}</Typography>
                 </GridCell>
                 <GridCell>
                   <Switch
@@ -110,13 +146,13 @@ function PomoConfigsDialog(props) {
                         (oldConfig) => { oldConfig.postureReminder.enabled = event.target.checked }
                       )
                     }}
-                    label="Enable Posture Reminder"
+                    label={t('config.switches.enablePostureReminder')}
                   />
                 </GridCell>
                 <GridCell>
-                  <Tooltip content="After this many minutes of continuous work, you'll be reminded to switch posture (sit/stand).">
-                    <TextField required label="Posture Switch Interval" type="number"
-                      suffix="minutes" pattern="[0-9]*" min={1}
+                  <Tooltip content={t('config.tooltips.postureSwitchInterval')}>
+                    <TextField required label={t('config.labels.postureSwitchInterval')} type="number"
+                      suffix={t('common.minutes')} pattern="[0-9]*" min={1}
                       defaultValue={props.pomoConfigs.postureReminder?.intervalMinutes}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
@@ -128,8 +164,8 @@ function PomoConfigsDialog(props) {
                   </Tooltip>
                 </GridCell>
                 <GridCell span={12}>
-                  <Tooltip content="This message will be displayed when it's time to switch posture.">
-                    <TextField style={{width: "100%"}} required label="Posture Reminder Message"
+                  <Tooltip content={t('config.tooltips.postureReminderMessage')}>
+                    <TextField style={{width: "100%"}} required label={t('config.labels.postureReminderMessage')}
                       minLength={1}
                       defaultValue={props.pomoConfigs.postureReminder?.notificationText}
                       onChange={(event) => {
@@ -145,11 +181,11 @@ function PomoConfigsDialog(props) {
             </GridCell>
             <GridCell span={12}><ListDivider /></GridCell>
             <GridCell span={12}>
-              <Typography use="subtitle2">Background Video Config</Typography>
+              <Typography use="subtitle2">{t('config.sections.backgroundVideo')}</Typography>
             </GridCell>
             <GridCell span={12}>
-                <Tooltip content="Enter a Youtube video url. Leave empty to not play anything.">
-                  <TextField style={{width:"100%"}} label="Youtube Url" type="text"
+                <Tooltip content={t('config.tooltips.youtubeUrl')}>
+                  <TextField style={{width:"100%"}} label={t('config.labels.youtubeUrl')} type="text"
                     defaultValue={props.pomoConfigs.playerUrl}
                     onChange={(event) => {
                       setNewPomoConfig(
@@ -163,12 +199,12 @@ function PomoConfigsDialog(props) {
             <GridCell span={12}>
               <GridRow>
                 <GridCell span={12}>
-                  <Typography use="subtitle2">Face Recognition Config</Typography>
+                  <Typography use="subtitle2">{t('config.sections.faceRecognition')}</Typography>
                 </GridCell>
                 <GridCell>
-                  <Tooltip content="Every n seconds we detect user face, shorter interval might increase CPU usage, longer interval might make pomodoro less sensitive.">
-                    <TextField required label="Minimum Face Detection Interval" type="number"
-                      pattern="[0-9]*" suffix="seconds" min={2}
+                  <Tooltip content={t('config.tooltips.detectionInterval')}>
+                    <TextField required label={t('config.labels.minFaceDetectionInterval')} type="number"
+                      pattern="[0-9]*" suffix={t('common.seconds')} min={2}
                       defaultValue={props.pomoConfigs.faceRecognition.minDetectionInterval}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
@@ -181,9 +217,24 @@ function PomoConfigsDialog(props) {
                   </Tooltip>
                 </GridCell>
                 <GridCell>
-                  <Tooltip content="Every n seconds we detect user face, shorter interval might increase CPU usage, longer interval might make pomodoro less sensitive.">
-                    <TextField required label="Maximum Face Detection Interval" type="number"
-                      pattern="[0-9]*" suffix="seconds" min={2}
+                  <Tooltip content={t('config.tooltips.missingFaceRetryInterval')}>
+                    <TextField required label={t('config.labels.missingFaceRetryInterval')}
+                      pattern="[0-9]*" suffix={t('common.seconds')} min={1} type="number"
+                      defaultValue={props.pomoConfigs.faceRecognition.missingFaceRetryIntervalSeconds}
+                      onChange={(event) => {
+                        if (!event.target.reportValidity()) return;
+                        const newTime = parseInt(event.target.value)
+                        setNewPomoConfig(
+                          (oldConfig) => { oldConfig.faceRecognition.missingFaceRetryIntervalSeconds = newTime }
+                        )
+                      }}
+                    />
+                  </Tooltip>
+                </GridCell>
+                <GridCell>
+                  <Tooltip content={t('config.tooltips.detectionInterval')}>
+                    <TextField required label={t('config.labels.maxFaceDetectionInterval')} type="number"
+                      pattern="[0-9]*" suffix={t('common.seconds')} min={2}
                       defaultValue={props.pomoConfigs.faceRecognition.maxDetectionInterval}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
@@ -203,7 +254,7 @@ function PomoConfigsDialog(props) {
                         (oldConfig) => { oldConfig.faceRecognition.showFaceRecognitionStatus = event.target.checked }
                       )
                     }}
-                    label="Show Face Recognition Status"
+                    label={t('config.switches.showFaceRecognitionStatus')}
                   />
                 </GridCell>
                 <GridCell>
@@ -214,7 +265,7 @@ function PomoConfigsDialog(props) {
                         (oldConfig) => { oldConfig.faceRecognition.showCameraPreview = event.target.checked }
                       )
                     }}
-                    label="Show Live Camera Preview"
+                    label={t('config.switches.showLiveCameraPreview')}
                   />
                 </GridCell>
                 <GridCell>
@@ -225,7 +276,7 @@ function PomoConfigsDialog(props) {
                         (oldConfig) => { oldConfig.faceRecognition.showFaceRecognitionCanvas = event.target.checked }
                       )
                     }}
-                    label="Show Face Detection Result"
+                    label={t('config.switches.showFaceDetectionResult')}
                   />
                 </GridCell>
               </GridRow>
@@ -234,11 +285,11 @@ function PomoConfigsDialog(props) {
             <GridCell span={12}>
               <GridRow>
                 <GridCell span={12}>
-                  <Typography use="subtitle2">Notification Config</Typography>
+                  <Typography use="subtitle2">{t('config.sections.notification')}</Typography>
                 </GridCell>
                 <GridCell span={4}>
-                  <TextField required label="Notification Interval Time" type="number"
-                    suffix="seconds" pattern="[0-9]*"
+                  <TextField required label={t('config.labels.notificationIntervalTime')} type="number"
+                    suffix={t('common.seconds')} pattern="[0-9]*"
                     defaultValue={props.pomoConfigs.notificationIntervalSeconds}
                     onChange={(event) => {
                       if (!event.target.reportValidity()) return;
@@ -249,9 +300,9 @@ function PomoConfigsDialog(props) {
                   />
                 </GridCell>
                 <GridCell span={4}>
-                  <Tooltip content="Everytime a notification is send, its wait time will multiply previous interval, so that the sending interval is longer and longer. If you don't want this behavior, change it to 1.">
-                    <TextField required label="Notification Interval Multiplier"
-                      suffix="times" pattern="[0-9\.]*" min={1} type="number" step="0.1"
+                  <Tooltip content={t('config.tooltips.notificationIntervalMultiplier')}>
+                    <TextField required label={t('config.labels.notificationIntervalMultiplier')}
+                      suffix={t('common.times')} pattern="[0-9\.]*" min={1} type="number" step="0.1"
                       defaultValue={props.pomoConfigs.notificationIntervalMultiplier}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
@@ -264,8 +315,8 @@ function PomoConfigsDialog(props) {
                   </Tooltip>
                 </GridCell>
                 <GridCell span={12}>
-                  <Tooltip content="This message will be displayed to let you know it's time to start Pomodoro session.">
-                    <TextField style={{width: "100%"}} required label="Focus Notification Message"
+                  <Tooltip content={t('config.tooltips.focusNotificationMessage')}>
+                    <TextField style={{width: "100%"}} required label={t('config.labels.focusNotificationMessage')}
                       minLength={1}
                       defaultValue={props.pomoConfigs.focusNotificationText}
                       onChange={(event) => {
@@ -278,8 +329,8 @@ function PomoConfigsDialog(props) {
                   </Tooltip>
                 </GridCell>
                 <GridCell span={12}>
-                  <Tooltip content="This message will be displayed to let you know it's time to take a break.">
-                    <TextField style={{width: "100%"}} required label="Rest Notification Message"
+                  <Tooltip content={t('config.tooltips.restNotificationMessage')}>
+                    <TextField style={{width: "100%"}} required label={t('config.labels.restNotificationMessage')}
                       minLength={1}
                       defaultValue={props.pomoConfigs.restNotificationText}
                       onChange={(event) => {
@@ -297,13 +348,13 @@ function PomoConfigsDialog(props) {
             <GridCell span={12}>
               <GridRow>
                 <GridCell span={12}>
-                  <Typography use="subtitle2">Pomodoro History Config</Typography>
+                  <Typography use="subtitle2">{t('config.sections.history')}</Typography>
                 </GridCell>
                 <GridCell>
-                  <Tooltip content="Increasing this might degrade performance.">
-                    <TextField required label="Max pomodoro history entries kepted" type="number"
+                  <Tooltip content={t('config.tooltips.maxHistoryEntries')}>
+                    <TextField required label={t('config.labels.maxPomodoroHistoryEntries')} type="number"
                       resizeable={true}
-                      pattern="[0-9]*" suffix="entries" min={1}
+                      pattern="[0-9]*" suffix={t('common.entries')} min={1}
                       defaultValue={props.pomoConfigs.history.maxLocalStorageTimeSlot}
                       onChange={(event) => {
                         if (!event.target.reportValidity()) return;
@@ -322,7 +373,7 @@ function PomoConfigsDialog(props) {
                         (oldConfig) => { oldConfig.history.showPomodoroHistory = event.target.checked }
                       )
                     }}
-                    label="Show Pomodoro History"
+                    label={t('config.switches.showPomodoroHistory')}
                   />
                 </GridCell>
                 <GridCell>
@@ -333,7 +384,7 @@ function PomoConfigsDialog(props) {
                         (oldConfig) => { oldConfig.history.onlyShowToday = event.target.checked }
                       )
                     }}
-                    label="Only Show Today's History"
+                    label={t('config.switches.onlyShowTodayHistory')}
                   />
                 </GridCell>
               </GridRow>
@@ -342,9 +393,9 @@ function PomoConfigsDialog(props) {
           </form>
         </DialogContent>
         <DialogActions>
-          <DialogButton action="close">Cancel</DialogButton>
+          <DialogButton action="close">{t('common.cancel')}</DialogButton>
           <DialogButton action="confirm" disabled={!formValid} isDefaultAction>
-            Confirm
+            {t('common.confirm')}
           </DialogButton>
         </DialogActions>
       </Dialog>

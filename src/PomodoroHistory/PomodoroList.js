@@ -12,8 +12,10 @@ import '@rmwc/tooltip/styles';
 
 
 import {css} from '@emotion/css'
+import { useI18n } from '../i18n';
 
 function RestTimeLineItem(props) {
+  const { locale, t } = useI18n();
   const record = props.record;
   const onDeleteRestSession = props.onDeleteRestSession;
 
@@ -25,9 +27,9 @@ function RestTimeLineItem(props) {
           justify-content: space-between;
         `
       }>
-        <p> Rest for {formatSeconds(record.timePeriod)} </p>
-        <Tooltip content="Remove this session, and merge adjacent session." showArrow>
-          <Button label="Remove" onClick={() => { onDeleteRestSession(record.startTime) }} />
+        <p>{t('history.restFor', { duration: formatSeconds(record.timePeriod, false, locale) })}</p>
+        <Tooltip content={t('history.removeRestTooltip')} showArrow>
+          <Button label={t('common.remove')} onClick={() => { onDeleteRestSession(record.startTime) }} />
         </Tooltip>
       </div>
     </Timeline.Item>

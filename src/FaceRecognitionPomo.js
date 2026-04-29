@@ -7,6 +7,7 @@ import { TopAppBar, TopAppBarRow, TopAppBarSection, TopAppBarActionItem, TopAppB
 import { ThemeProvider } from '@rmwc/theme'
 import { css } from "@emotion/css";
 import { produce } from 'immer';
+import { I18nProvider, useI18n } from './i18n';
 
 import '@rmwc/theme/styles';
 import '@rmwc/top-app-bar/styles';
@@ -14,6 +15,71 @@ import '@rmwc/icon/styles';
 
 import PomoConfigsDialog from "./dialogs/PomoConfigsDialog";
 import IntroDialog from "./dialogs/IntroDialog";
+
+function FaceRecognitionPomoApp(props) {
+  const { t } = useI18n();
+  const [openConfigDialog, setOpenConfigDialog] = useState(false);
+  const [openIntroDialog, setOpenIntroDialog] = useState(true);
+
+  function onIntroDialogClose() {
+    setOpenIntroDialog(false)
+    props.setPomoConfigs(produce(
+      (oldConfig) => {
+        oldConfig.enableDetection = true;
+        oldConfig.enableNotification = true;
+      }
+    ))
+  }
+
+  function toggleMusic() {
+    props.setPomoConfigs(produce((oldConfig) => {
+      oldConfig.enablePlayer = !oldConfig.enablePlayer
+    }))
+  }
+
+  const music_icon = props.pomoConfigs.enablePlayer ? "volume_off" : "music_video"
+
+  return (
+    <ThemeProvider
+      options={{
+        primary: '#bf360c',
+        secondary: '#616161'
+      }}
+    >
+      <TopAppBar style={{ zIndex: 15 }}>
+        <TopAppBarRow>
+          <TopAppBarSection alignStart>
+            <TopAppBarActionItem icon="help" onClick={() => setOpenIntroDialog(true)} />
+          </TopAppBarSection>
+          <TopAppBarSection className={css`justify-content: center`}>
+            <TopAppBarTitle>
+              {t('app.title')}
+            </TopAppBarTitle>
+          </TopAppBarSection>
+          <TopAppBarSection alignEnd>
+            <TopAppBarActionItem icon={music_icon} onClick={() => toggleMusic()} />
+            <TopAppBarActionItem icon="settings" onClick={() => setOpenConfigDialog(true)} />
+          </TopAppBarSection>
+        </TopAppBarRow>
+      </TopAppBar>
+      <TopAppBarFixedAdjust />
+
+      <IntroDialog
+        open={openIntroDialog}
+        onClose={onIntroDialogClose}
+      />
+      <PomoConfigsDialog
+        open={openConfigDialog}
+        onClose={() => setOpenConfigDialog(false)}
+        pomoConfigs={props.pomoConfigs}
+        setPomoConfigs={props.setPomoConfigs}
+      />
+      <PomoConfigsContext.Provider value={props.pomoConfigs}>
+        <HealthMonitor />
+      </PomoConfigsContext.Provider>
+    </ThemeProvider>
+  );
+}
 
 function FaceRecognitionPomo() {
   const [pomoConfigs, setPomoConfigs] = useLocalStorageState("pomoConfig", {
@@ -31,70 +97,13 @@ function FaceRecognitionPomo() {
     }
   })
 
-  const [openConfigDialog, setOpenConfigDialog] = useState(false);
-  const [openIntroDialog, setOpenIntroDialog] = useState(true);
-
-  function onIntroDialogClose() {
-    setOpenIntroDialog(false)
-    setPomoConfigs(produce(
-      (oldConfig) => {
-        oldConfig.enableDetection = true;
-        oldConfig.enableNotification = true;
-      }
-    ))
-  }
-
-  function toggleMusic() {
-    setPomoConfigs(produce((oldConfig) => {
-      oldConfig.enablePlayer = !oldConfig.enablePlayer
-    }))
-  }
-
-  const music_icon = pomoConfigs.enablePlayer ? "volume_off" : "music_video"
-
   return (
-    <>
-      <ThemeProvider
-        options={{
-          primary: '#bf360c',
-          secondary: '#616161'
-        }}
-      >
-
-        <TopAppBar style={{ zIndex: 15 }}>
-          <TopAppBarRow>
-            <TopAppBarSection alignStart>
-              <TopAppBarActionItem icon="help" onClick={() => setOpenIntroDialog(true)} />
-            </TopAppBarSection>
-            <TopAppBarSection className={css`justify-content: center`}>
-              <TopAppBarTitle >
-                Face Recognition Pomodoro
-              </TopAppBarTitle>
-            </TopAppBarSection>
-            <TopAppBarSection alignEnd>
-              <TopAppBarActionItem icon={music_icon} onClick={() => toggleMusic()} />
-              <TopAppBarActionItem icon="settings" onClick={() => setOpenConfigDialog(true)} />
-            </TopAppBarSection>
-          </TopAppBarRow>
-        </TopAppBar>
-        <TopAppBarFixedAdjust />
-
-          <IntroDialog
-            open={openIntroDialog}
-            onClose={onIntroDialogClose}
-          />
-          <PomoConfigsDialog
-            open={openConfigDialog}
-            onClose={() => setOpenConfigDialog(false)}
-            pomoConfigs={pomoConfigs}
-            setPomoConfigs={setPomoConfigs}
-          />
-        <PomoConfigsContext.Provider value={pomoConfigs}>
-          <HealthMonitor />
-        </PomoConfigsContext.Provider>
-
-      </ThemeProvider>
-    </>
+    <I18nProvider locale={pomoConfigs.locale}>
+      <FaceRecognitionPomoApp
+        pomoConfigs={pomoConfigs}
+        setPomoConfigs={setPomoConfigs}
+      />
+    </I18nProvider>
   );
 }
 

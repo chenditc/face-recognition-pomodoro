@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useI18n } from "../i18n";
 
 export const pomoStatusClassName = css`
   font-size: 20vw;
@@ -13,7 +14,8 @@ export const pomoStatusClassName = css`
 `
 
 export function PomoStatus(props) {
-  const statusMessage = props.focus ? "WORKING" : "REST";
+  const { t } = useI18n();
+  const statusMessage = props.focus ? t('status.working') : t('status.rest');
   const usedClassName = props.className || pomoStatusClassName
   return (
     <p className={usedClassName}> 

@@ -1,28 +1,20 @@
 import Card from 'antd/lib/card';
 import { css } from '@emotion/css'
+import { formatDuration, getLocaleTimeCode, useI18n } from '../i18n';
 
-export function formatSeconds(seconds, preserveSeconds = false) {
-    const roundSeconds = Math.floor(seconds)
-    if (roundSeconds < 60) {
-      return `${roundSeconds}s`
-    }
-    if (roundSeconds < 3600) {
-      const minutes = Math.floor(roundSeconds / 60);
-      const secondsResidual = roundSeconds - minutes * 60;
-      return preserveSeconds ? `${minutes}m ${secondsResidual}s` : `${minutes}m`;
-    }
-    const minutes = Math.floor(roundSeconds / 60);
-    const minutesResidual = minutes % 60;
-    const hours = Math.floor(minutes / 60);
-    return `${hours}h ${minutesResidual}m`
+export function formatSeconds(seconds, preserveSeconds = false, locale) {
+    return formatDuration(seconds, preserveSeconds, locale)
   }
-  
 
 export function PomodoroCard(props) {
+    const i18n = useI18n();
+    const locale = props.locale || i18n.locale;
+    const t = props.t || i18n.t;
     const record = props.record
     const index = props.index
 
-    const title = index ? `Pomodoro #${index}` : undefined;
+    const title = index ? t('history.pomodoroCardTitle', { index }) : undefined;
+    const localeTimeCode = getLocaleTimeCode(locale);
   
     return (
       <>
@@ -50,7 +42,7 @@ export function PomodoroCard(props) {
           font-weight: bold;
         `
           }>
-            {formatSeconds(record.timePeriod)}
+            {formatSeconds(record.timePeriod, false, locale)}
           </span>
           <div className={
             css`
@@ -67,7 +59,7 @@ export function PomodoroCard(props) {
               margin: 0 0 0 10px;
             `
           }>
-            {new Date(record.startTime).toLocaleTimeString().slice(0, 5)} - {new Date(record.endTime).toLocaleTimeString().slice(0, 5)}
+            {new Date(record.startTime).toLocaleTimeString(localeTimeCode, { hour: '2-digit', minute: '2-digit' })} - {new Date(record.endTime).toLocaleTimeString(localeTimeCode, { hour: '2-digit', minute: '2-digit' })}
           </p>
           </div>
   
