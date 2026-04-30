@@ -15,7 +15,7 @@ export const pomoStatusClassName = css`
 
 export function PomoStatus(props) {
   const { t } = useI18n();
-  const statusMessage = props.focus ? t('status.working') : t('status.rest');
+  const statusMessage = props.label || (props.focus ? t('status.working') : t('status.rest'));
   const usedClassName = props.className || pomoStatusClassName
   return (
     <p className={usedClassName}> 

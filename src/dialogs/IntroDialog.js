@@ -1,5 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, DialogButton } from '@rmwc/dialog';
-import '@rmwc/dialog/styles';
+import { Modal } from 'antd';
 
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
@@ -14,16 +13,20 @@ function IntroDialog(props) {
   const { t } = useI18n();
 
   return (
-    <>
-      <Dialog
-        style={{zIndex: 15}}
-        open={props.open}
-        onClose={(event) => {
-          props.onClose()
-        }}
-      >
-        <DialogTitle>{t('intro.title')}</DialogTitle>
-        <DialogContent>
+    <Modal
+      zIndex={1010}
+      visible={props.open}
+      onCancel={props.onClose}
+      onOk={props.onClose}
+      okText={t('intro.continue')}
+      cancelButtonProps={{ style: { display: 'none' } }}
+      maskClosable={false}
+      destroyOnClose
+      width="80vw"
+      style={{ top: 24 }}
+      bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+      title={t('intro.title')}
+    >
           <div style={{padding: "10px"}} />
           <Card>
             <CardPrimaryAction>
@@ -93,14 +96,7 @@ function IntroDialog(props) {
               </div>
             </CardPrimaryAction>
           </Card>
-        </DialogContent>
-        <DialogActions>
-          <DialogButton action="confirm" isDefaultAction>
-            {t('intro.continue')}
-          </DialogButton>
-        </DialogActions>
-      </Dialog>
-    </>
+    </Modal>
   )
 }
 

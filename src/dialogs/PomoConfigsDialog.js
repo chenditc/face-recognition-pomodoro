@@ -1,5 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, DialogButton } from '@rmwc/dialog';
-import '@rmwc/dialog/styles';
+import { Modal } from 'antd';
 import { TextField } from '@rmwc/textfield';
 import '@rmwc/textfield/styles';
 import { Grid, GridRow, GridCell } from '@rmwc/grid'
@@ -8,14 +7,15 @@ import { Switch } from '@rmwc/switch';
 import '@rmwc/switch/styles';
 import { Typography } from '@rmwc/typography';
 import '@rmwc/typography/styles';
+import { Button } from '@rmwc/button';
+import '@rmwc/button/styles';
 import { Tooltip } from '@rmwc/tooltip';
 import '@rmwc/tooltip/styles';
 import { ListDivider } from '@rmwc/list';
 import '@rmwc/list/styles';
 
-import './PomoConfigsDialog.css'
 import { useImmer } from "use-immer";
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supportedLocales, syncLocaleDefaults, useI18n } from '../i18n';
 
 function PomoConfigsDialog(props) {
@@ -24,26 +24,39 @@ function PomoConfigsDialog(props) {
   const { t } = useI18n();
 
   const [formValid, setFormValid] = useState(true);
+  const authorizedFaceEnrolled = Array.isArray(props.authorizedFaceProfile?.descriptors) && props.authorizedFaceProfile.descriptors.length > 0;
+  const selectInputStyle = {
+    height: "40px",
+    borderRadius: "4px",
+    border: "1px solid rgba(0, 0, 0, 0.38)",
+    padding: "0 12px",
+    background: "white",
+  };
+
+  useEffect(() => {
+    if (!props.open) return;
+    setNewPomoConfig(props.pomoConfigs);
+  }, [props.open, props.pomoConfigs, setNewPomoConfig]);
 
   return (
-    <>
-      <Dialog
-        style={{zIndex: 15}}
-        open={props.open}
-        preventOutsideDismiss={true}
-        onOpen={(event) => {
-          // Reset config files
-          setNewPomoConfig(props.pomoConfigs);
-        }}
-        onClose={(event) => {
-          if (event.target.action === "confirm") {
-            props.setPomoConfigs(syncLocaleDefaults(props.pomoConfigs, newPomoConfig));
-          }
-          props.onClose()
-        }}
-      >
-        <DialogTitle>{t('config.title')}</DialogTitle>
-        <DialogContent>
+    <Modal
+      zIndex={1010}
+      visible={props.open}
+      title={t('config.title')}
+      onCancel={props.onClose}
+      onOk={() => {
+        props.setPomoConfigs(syncLocaleDefaults(props.pomoConfigs, newPomoConfig));
+        props.onClose();
+      }}
+      okText={t('common.confirm')}
+      cancelText={t('common.cancel')}
+      okButtonProps={{ disabled: !formValid }}
+      maskClosable={false}
+      destroyOnClose
+      width="80vw"
+      style={{ top: 24 }}
+      bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+    >
           <form ref={formRef} onChange={() => {
             const newValid = formRef.current && formRef.current.reportValidity();
             console.log(newValid);
@@ -64,13 +77,7 @@ function PomoConfigsDialog(props) {
                         onChange={(event) => {
                           setNewPomoConfig((oldConfig) => { oldConfig.locale = event.target.value })
                         }}
-                        style={{
-                          height: "40px",
-                          borderRadius: "4px",
-                          border: "1px solid rgba(0, 0, 0, 0.38)",
-                          padding: "0 12px",
-                          background: "white",
-                        }}
+                        style={selectInputStyle}
                       >
                         {supportedLocales.map((localeOption) => (
                           <option key={localeOption.value} value={localeOption.value}>
@@ -80,6 +87,103 @@ function PomoConfigsDialog(props) {
                       </select>
                     </label>
                   </Tooltip>
+                </GridCell>
+              </GridRow>
+            </GridCell>
+            <GridCell span={12}><ListDivider /></GridCell>
+            <GridCell span={12}>
+              <GridRow>
+                <GridCell span={12}>
+                  <Typography use="subtitle2">{t('config.sections.authorizedFace')}</Typography>
+                </GridCell>
+                <GridCell span={8}>
+                  <div style={{
+                    display: 'flex',
+                    gap: '16px',
+                    alignItems: 'center',
+                    padding: '16px',
+                    borderRadius: '16px',
+                    background: authorizedFaceEnrolled ? 'rgba(191, 54, 12, 0.06)' : 'rgba(33, 150, 243, 0.08)',
+                    border: '1px solid rgba(0, 0, 0, 0.08)',
+                  }}>
+                    {props.authorizedFaceProfile?.thumbnail ? (
+                      <img
+                        src={props.authorizedFaceProfile.thumbnail}
+                        alt={t('config.authorizedFace.previewAlt')}
+                        style={{
+                          width: '72px',
+                          height: '72px',
+                          borderRadius: '999px',
+                          objectFit: 'cover',
+                          border: '2px solid rgba(191, 54, 12, 0.16)',
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: '72px',
+                        height: '72px',
+                        borderRadius: '999px',
+                        border: '1px dashed rgba(0, 0, 0, 0.22)',
+                        display: 'grid',
+                        placeItems: 'center',
+                        color: '#757575',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                      }}>
+                        {t('config.authorizedFace.emptyPreview')}
+                      </div>
+                    )}
+                    <div style={{ display: 'grid', gap: '4px' }}>
+                      <Typography use="body2">{t('config.labels.authorizedFaceStatus')}</Typography>
+                      <Typography use="headline6">
+                        {authorizedFaceEnrolled ? t('config.authorizedFace.enrolled') : t('config.authorizedFace.notEnrolled')}
+                      </Typography>
+                      <Typography use="body2" tag="p">
+                        {authorizedFaceEnrolled
+                          ? t('config.authorizedFace.enrolledBody', {
+                            count: props.authorizedFaceProfile?.descriptors?.length || 0,
+                          })
+                          : t('config.authorizedFace.notEnrolledBody')}
+                      </Typography>
+                    </div>
+                  </div>
+                </GridCell>
+                <GridCell span={4}>
+                  <label style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <Typography use="body2">{t('config.labels.matchStrictness')}</Typography>
+                    <select
+                      value={newPomoConfig.faceRecognition.matchStrictness}
+                      onChange={(event) => {
+                        setNewPomoConfig((oldConfig) => { oldConfig.faceRecognition.matchStrictness = event.target.value })
+                      }}
+                      style={selectInputStyle}
+                    >
+                      <option value="lenient">{t('config.authorizedFace.lenient')}</option>
+                      <option value="balanced">{t('config.authorizedFace.balanced')}</option>
+                      <option value="strict">{t('config.authorizedFace.strict')}</option>
+                    </select>
+                  </label>
+                </GridCell>
+                <GridCell span={12}>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <Button
+                      raised
+                      label={authorizedFaceEnrolled ? t('config.authorizedFace.reEnroll') : t('config.authorizedFace.enroll')}
+                      onClick={() => {
+                        props.onClose();
+                        props.onOpenEnrollment();
+                      }}
+                    />
+                    <Button
+                      outlined
+                      disabled={!authorizedFaceEnrolled}
+                      label={t('config.authorizedFace.delete')}
+                      onClick={() => {
+                        if (!authorizedFaceEnrolled) return;
+                        if (!window.confirm(t('config.authorizedFace.deleteConfirm'))) return;
+                        props.onDeleteAuthorizedFace();
+                      }}
+                    />
+                  </div>
                 </GridCell>
               </GridRow>
             </GridCell>
@@ -391,15 +495,7 @@ function PomoConfigsDialog(props) {
             </GridCell>
           </Grid>
           </form>
-        </DialogContent>
-        <DialogActions>
-          <DialogButton action="close">{t('common.cancel')}</DialogButton>
-          <DialogButton action="confirm" disabled={!formValid} isDefaultAction>
-            {t('common.confirm')}
-          </DialogButton>
-        </DialogActions>
-      </Dialog>
-    </>
+    </Modal>
   )
 }
 
