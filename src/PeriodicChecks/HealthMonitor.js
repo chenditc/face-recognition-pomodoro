@@ -1,4 +1,4 @@
-import { Suspense, useContext, useEffect, useState } from 'react';
+import { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import React from 'react';
 import useInterval from 'use-interval';
 import { css } from '@emotion/css';
@@ -172,6 +172,7 @@ function HealthMonitor(props) {
   const [webNotificationSupported, setWebNotificationSupported] = useState(false);
   const [faceAuthState, setFaceAuthState] = useState(getInitialFaceAuthState(isAuthorizedFaceEnrolled(props.authorizedFaceProfile)));
   const [enrollmentPromptDismissed, setEnrollmentPromptDismissed] = useState(false);
+  const awayStartedAtRef = useRef(null);
 
   const [mergedTimeTable, setMergedTimeTable] = useLocalStorageState('mergedTimeTable', {
     defaultValue: [],
@@ -296,6 +297,23 @@ function HealthMonitor(props) {
     setNotificationHistory(notificationHistory);
   }
 
+  const beginAwayPeriod = useCallback((startTime = new Date().toJSON()) => {
+    if (awayStartedAtRef.current) return;
+    awayStartedAtRef.current = startTime;
+  }, []);
+
+  const endAwayPeriod = useCallback((endTime = new Date().toJSON()) => {
+    if (!awayStartedAtRef.current) return 0;
+    const awaySeconds = (new Date(endTime) - new Date(awayStartedAtRef.current)) / 1000;
+    awayStartedAtRef.current = null;
+    return awaySeconds;
+  }, []);
+
+  const resetPostureTimer = useCallback((nextTime = new Date().toJSON()) => {
+    setLastPostureSwitchTime(nextTime);
+    setPostureReminderSent(false);
+  }, [setLastPostureSwitchTime, setPostureReminderSent]);
+
   function onFaceDetectionResult(nextFaceAuthState) {
     setFaceAuthState(nextFaceAuthState);
 
@@ -304,6 +322,12 @@ function HealthMonitor(props) {
     }
 
     const currDetected = nextFaceAuthState.status === 'authorized';
+    if (!currDetected) {
+      beginAwayPeriod();
+    }
+    else if (endAwayPeriod() >= tempMissingSeconds) {
+      resetPostureTimer();
+    }
 
     const newMergedTimeTable = produce(mergedTimeTable, (draftMergeTable) => {
       if (draftMergeTable.length === 0) {
@@ -331,15 +355,42 @@ function HealthMonitor(props) {
       draftMergeTable.at(-1).timePeriod = (new Date() - new Date(draftMergeTable.at(-1).startTime)) / 1000;
     });
     setMergedTimeTable(newMergedTimeTable);
-
-    const lastSlotRestElapsed = mergedTimeTable.length > 0
-      ? (new Date() - new Date(mergedTimeTable.at(-1).startTime)) / 1000 : 0;
-    if (currDetected && mergedTimeTable.length > 0 && !mergedTimeTable.at(-1).detected
-        && lastSlotRestElapsed >= tempMissingSeconds) {
-      setLastPostureSwitchTime(new Date().toJSON());
-      setPostureReminderSent(false);
-    }
   }
+
+  useEffect(() => {
+    if (trackingSuspended) {
+      awayStartedAtRef.current = null;
+      return undefined;
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'hidden') {
+        beginAwayPeriod();
+        return;
+      }
+
+      if (document.visibilityState === 'visible' && faceAuthState?.status === 'authorized'
+        && endAwayPeriod() >= tempMissingSeconds) {
+        resetPostureTimer();
+      }
+    }
+
+    function handleResume() {
+      if (faceAuthState?.status === 'authorized' && endAwayPeriod() >= tempMissingSeconds) {
+        resetPostureTimer();
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pageshow', handleResume);
+    window.addEventListener('focus', handleResume);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handleResume);
+      window.removeEventListener('focus', handleResume);
+    };
+  }, [beginAwayPeriod, endAwayPeriod, faceAuthState?.status, resetPostureTimer, tempMissingSeconds, trackingSuspended]);
 
   function deleteRestSession(startTime) {
     setMergedTimeTable(
