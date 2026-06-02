@@ -340,6 +340,12 @@ function HealthMonitor(props) {
         draftMergeTable.pop();
       }
 
+      // If the pop above emptied the table, start a fresh entry instead of dereferencing at(-1).
+      if (draftMergeTable.length === 0) {
+        draftMergeTable.push(getDefaultTimeSlot(currDetected));
+        return;
+      }
+
       if (currDetected && ((new Date() - new Date(draftMergeTable.at(-1).endTime)) > 1000 * tempMissingSeconds)) {
         draftMergeTable.push(getDefaultTimeSlot(false, draftMergeTable.at(-1).endTime));
         draftMergeTable.push(getDefaultTimeSlot(true, new Date().toJSON()));
